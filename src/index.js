@@ -1,7 +1,9 @@
 // load .env file
 require('dotenv').config()
+// webex connection object
 const webex = require('./models/webex')
-const getFile = require('./models/fetch')
+// download file from webex and save locally. returns our public URL for file
+const getFile = require('./models/file').get
 
 // cache of threads
 const threads = {}
