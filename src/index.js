@@ -85,11 +85,14 @@ async function handleMessageCreated (event) {
         }
       }
 
+      const mentionRegex = /<spark-mention.*<\/spark-mention>/g
+      const html = event.data.html.replace(mentionRegex, '').trim()
+      
       // construct the message to forward to staff room
       const data = {
         roomId: process.env.STAFF_ROOM_ID,
         text: `${event.data.personEmail} said ${event.data.text}`,
-        markdown: `${event.data.personEmail} said ${event.data.html}`
+        markdown: `${event.data.personEmail} said ${html}`
       }
       // send message to staff room
       await webex.messages.create(data)
@@ -106,17 +109,24 @@ async function handleMessageCreated (event) {
         }
       }
 
-      const parts = event.data.text.split(' ')
+      // parse the html output to nice markdown with the mention to this bot removed
+      // and any emails turned into real mentions
+      const mentionRegex = /<spark-mention.*<\/spark-mention>/g
+      const emailRegex = /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/
+      const markdown = event.data.html.replace(mentionRegex, '').replace(emailRegex, '<@personEmail:$&>').trim()
+
+      // parse message text
+      // const parts = event.data.text.split(' ')
       // remove bot name from message text
-      parts.shift()
+      // parts.shift()
       // mentioned user is next
-      const user = parts.shift()
+      // const user = parts.shift()
       // followed by the actual message
-      const text = parts.join(' ')
-      const markdown = `<@personEmail:${user}> ${text}`
+      // const text = parts.join(' ')
+      // const markdown = `<@personEmail:${user}> ${text}`
       const data = {
         roomId: process.env.USER_ROOM_ID,
-        text,
+        // text,
         markdown
       }
       // send message to user room
