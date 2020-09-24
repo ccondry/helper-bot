@@ -1,24 +1,25 @@
 const webex = require('../webex')
 const threads = require('../threads')
 const getFile = require('../file').get
+const me = require('../me')
 
 module.exports = async function  (event) {
-  // forward each file attachment as a new file message
-  // since we can only send 1 file at a time with REST API
-  if (event.data.files) {
-    for (const file of event.data.files) {
-      // forwardUserFile(event.data.personEmail, file, process.env.STAFF_ROOM_ID)
-    }
-  }
-
+  // remove @mention html tags
   const mentionRegex = /<spark-mention.*<\/spark-mention>/g
   const html = event.data.html.replace(mentionRegex, '').trim()
-  
+  // remove @mention bot name from text
+  const bot = await me.get()
+  const botName = bot.displayName
+  const text = event.data.text.replace(botName, '').trim()
+
   // construct the message to forward to staff room
   const data = {
     roomId: process.env.STAFF_ROOM_ID,
-    text: `${event.data.personEmail} said ${event.data.text}`,
-    markdown: `${event.data.personEmail} said ${html}`
+    text: `${event.data.personEmail} said ${text}`
+  }
+  // only send markdown if it has more than <p> formatting
+  if (html.length > text.length + 8) {
+    data.markdown = `${event.data.personEmail} said ${html}`
   }
   const thread = threads.find(v => v.userThreadId === event.data.parentId)
   if (thread) {
