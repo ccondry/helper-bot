@@ -33,6 +33,7 @@ module.exports = {
         throw Error(`${response.status} ${response.statusText} - ${text}`)
       }
     } catch (e) {
+      console.log('failed to get file')
       throw e
     }
     try {
