@@ -56,7 +56,8 @@ module.exports = {
       // console.log('wrote file', path)
       return fileUrl
     } catch (e) {
-      throw e
+      console.log('failed to upload/write file:', e.message)
+      throw Error('Failed to upload file attachment')
     }
   }
 }

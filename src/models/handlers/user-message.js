@@ -29,13 +29,21 @@ module.exports = async function  (event) {
   // forward the first attached file, if any
   if (event.data.files && event.data.files.length) {
     // download file and get publicly-accessible link for the file
-    const fileUrl = await file.get(event.data.files[0])
-    // send file link in teams message
-    data.files = fileUrl
-    // did they send only files, no text? change the message sent to staff
-    if (event.data.text.length === 0) {
-      data.text = `${event.data.personEmail} sent this file`
-      delete data.markdown
+    try {
+      const fileUrl = await file.get(event.data.files[0])
+      // send file link in teams message
+      data.files = fileUrl
+      // did they send only files, no text? change the message sent to staff
+      if (event.data.text.length === 0) {
+        data.text = `${event.data.personEmail} sent this file`
+        delete data.markdown
+      }
+    } catch (e) {
+      // failed to upload/write file - log to staff room
+      webex.messages.create({
+        roomId: process.env.STAFF_ROOM_ID,
+        text: `${event.data.personEmail} tried to send a file, but there was an error: ${e.message}`
+      }).catch(e => console.log('Failed to send file error message to staff room:', e.message))
     }
   }
 
@@ -61,7 +69,16 @@ module.exports = async function  (event) {
       // send the rest of the files as separate messages
       for (const file of event.data.files) {
         // download file and get publicly-accessible link for the file
-        const fileUrl = await getFile(file)
+        let fileUrl
+        try {
+          fileUrl = await getFile(file)
+        } catch (e) {
+          // failed to upload/write file - log to staff room
+          webex.messages.create({
+            roomId: process.env.STAFF_ROOM_ID,
+            text: `${event.data.personEmail} tried to send a file, but there was an error: ${e.message}`
+          }).catch(e => console.log('Failed to send file error message to staff room:', e.message))
+        }
         // remove markdown from previous data
         delete data.markdown
         // send message with file attachment
