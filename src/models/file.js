@@ -1,7 +1,7 @@
 const fetch = require('node-fetch')
 const fs = require('fs')
 const fsp = fs.promises
-const { v4: uuidv4 } = require('uuid')
+const uuid = require('uuid')
 
 function getFilename (response) {
   // get content disposition
@@ -13,7 +13,7 @@ function getFilename (response) {
   const filename = parts[index + 1].split('=')[1]
   // remove quotes
   const trimmedFilename = filename.slice(1, -1)
-  // decode from URI encoding
+  // decode from URI encodingv4
   return decodeURIComponent(trimmedFilename).replace(/\+/g, ' ')
 }
 
@@ -21,7 +21,6 @@ module.exports = {
   async get (url) {
     let response
     try {
-      console.log('using token', process.env.ACCESS_TOKEN)
       // get file
       const options = {
         headers: {
@@ -39,7 +38,7 @@ module.exports = {
     try {
       const filename = getFilename(response)
       // console.log('filename:', filename)
-      const id = uuidv4()
+      const id = uuid.v4()
       const folder = `${process.env.FILE_PATH}/${id}`
       // create the folder
       await fsp.mkdir(folder)
