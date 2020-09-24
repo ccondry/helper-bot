@@ -40,7 +40,8 @@ async function main () {
   } catch (e) {
     console.log(e.message)
     // exit
-    process.exitCode = 1
+    // process.exitCode = 1
+    process.exit(1)
   }
 
   // handle ctrl-c
@@ -75,7 +76,8 @@ async function main () {
     }
     
     // exit
-    process.exitCode = 0
+    // process.exitCode = 0
+    process.exit(0)
   })
 }
 
