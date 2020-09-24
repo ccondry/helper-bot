@@ -40,8 +40,11 @@ module.exports = {
       const filename = getFilename(response)
       // console.log('filename:', filename)
       const id = uuidv4()
-      await fsp.mkdir(id)
-      const path = `${id}/${filename}`
+      const folder = `${process.env.FILE_PATH}/${id}`
+      // create the folder
+      await fsp.mkdir(folder)
+      // build full file path
+      const path = `${folder}/${filename}`
       // const path = filename
       const fileUrl = `${process.env.FILE_HOST}/${filename}`
       const fileStream = fs.createWriteStream(path)
