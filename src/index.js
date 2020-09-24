@@ -1,5 +1,6 @@
 // load .env file
 require('dotenv').config()
+const package = require('../package.json')
 // webex connection object
 const webex = require('./models/webex')
 
@@ -44,7 +45,7 @@ async function main () {
 
   // handle ctrl-c
   process.on('SIGINT', async function () {
-    console.log(`${process.env.npm_package_name} stopping websocket listeners...`)
+    console.log(`${package.name} stopping websocket listeners...`)
     try {
       // stop membership listening
       // await webex.memberships.stopListening()
@@ -67,10 +68,10 @@ async function main () {
       console.log(`successfully deleted websocket device on webex.`)
 
       // done
-      console.log(`${process.env.npm_package_name} done. exiting.`)
+      console.log(`${package.name} done. exiting.`)
     } catch (e) {
       // error stopping listeners
-      console.log(`${process.env.npm_package_name} done, but error while stopping listeners:`, e.message)
+      console.log(`${package.name} done, but error while stopping listeners:`, e.message)
     }
     
     // exit
