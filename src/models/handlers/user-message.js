@@ -73,7 +73,6 @@ module.exports = async function  (event) {
         let fileUrl
         try {
           fileUrl = await getFile(file)
-          console.log(fileUrl)
         } catch (e) {
           // failed to upload/write file - log to staff room
           webex.messages.create({
