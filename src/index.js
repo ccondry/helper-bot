@@ -74,7 +74,7 @@ async function main () {
     }
     
     // exit
-    // process.exitCode = 0
+    process.exitCode = 0
   })
 }
 
