@@ -1,0 +1,2 @@
+# Allow 'administrator' user to restart helper-bot service
+administrator ALL=NOPASSWD: /bin/systemctl restart helper-bot.service

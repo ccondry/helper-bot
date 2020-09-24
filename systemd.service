@@ -1,0 +1,13 @@
+[Unit]
+Description=A Webex Teams bot that connects support staff with end users who need help, without revealing the real people supporting the end users.
+After=network.target
+
+[Service]
+Environment=PATH=/usr/bin:/usr/local/bin
+Environment=NODE_ENV=production
+WorkingDirectory=/opt/dcloud/helper-bot
+ExecStart=/usr/bin/node src
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
