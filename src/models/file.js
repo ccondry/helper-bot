@@ -53,7 +53,8 @@ module.exports = {
         response.body.on('error', reject)
         fileStream.on('finish', resolve)
       })
-      // console.log('wrote file', path)
+      console.log('wrote file', path)
+      console.log('file url is', fileUrl)
       return fileUrl
     } catch (e) {
       console.log('failed to upload/write file:', e.message)
