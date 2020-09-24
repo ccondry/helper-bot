@@ -34,7 +34,7 @@ module.exports = async function  (event) {
       // send file link in teams message
       data.files = fileUrl
       // did they send only files, no text? change the message sent to staff
-      if (event.data.text.length === 0) {
+      if (text.length === 0) {
         data.text = `${event.data.personEmail} sent this file`
         delete data.markdown
       }
