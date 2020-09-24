@@ -31,6 +31,7 @@ module.exports = async function  (event) {
     // download file and get publicly-accessible link for the file
     try {
       const fileUrl = await file.get(event.data.files[0])
+      console.log(fileUrl)
       // send file link in teams message
       data.files = fileUrl
       // did they send only files, no text? change the message sent to staff

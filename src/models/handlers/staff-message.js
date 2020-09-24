@@ -27,6 +27,7 @@ module.exports = async function (event) {
     try {
       // download file and get publicly-accessible link for the file
       const fileUrl = await file.get(event.data.files[0])
+      console.log(fileUrl)
       // send file link in teams message
       data.files = fileUrl
     } catch (e) {
