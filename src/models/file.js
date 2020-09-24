@@ -18,9 +18,16 @@ function getFilename (response) {
 }
 
 module.exports = {
-  async get (url, options) {
+  async get (url) {
     let response
     try {
+      console.log('using token', process.env.ACCESS_TOKEN)
+      // get file
+      const options = {
+        headers: {
+          Authorization: 'Bearer ' + process.env.ACCESS_TOKEN
+        }
+      }
       response = await fetch(url, options)
       // const text = await response.text()
       if (!response.ok) {
