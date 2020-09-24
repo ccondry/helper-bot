@@ -3,7 +3,7 @@ const webex = require('../webex')
 // threads cache
 const threads = require('../threads')
 // download file from webex and save locally. returns our public URL for file
-const getFile = require('../file').get
+const file = require('../file')
 
 module.exports = async function (event) {
   // parse the html output to nice markdown with the mention to this bot removed
@@ -25,7 +25,7 @@ module.exports = async function (event) {
   // forward the first attached file, if any
   if (event.data.files && event.data.files.length) {
     // download file and get publicly-accessible link for the file
-    const fileUrl = await getFile(event.data.files[0])
+    const fileUrl = await file.get(event.data.files[0])
     // send file link in teams message
     data.files = fileUrl
   }

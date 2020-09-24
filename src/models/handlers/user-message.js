@@ -1,6 +1,6 @@
 const webex = require('../webex')
 const threads = require('../threads')
-const getFile = require('../file').get
+const file = require('../file')
 const me = require('../me')
 
 module.exports = async function  (event) {
@@ -29,7 +29,7 @@ module.exports = async function  (event) {
   // forward the first attached file, if any
   if (event.data.files && event.data.files.length) {
     // download file and get publicly-accessible link for the file
-    const fileUrl = await getFile(event.data.files[0])
+    const fileUrl = await file.get(event.data.files[0])
     // send file link in teams message
     data.files = fileUrl
     // did they send only files, no text? change the message sent to staff
