@@ -81,4 +81,8 @@ async function main () {
   })
 }
 
+// start websocket listener
 main()
+
+// start express server
+require('./app')
