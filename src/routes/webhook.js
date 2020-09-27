@@ -5,7 +5,7 @@ const router = express.Router()
 router.post('/*', async (req, res, next) => {
   try {
     // just log for now
-    console.log(req.url, req.body)
+    console.log(req.headers, req.body)
     return res.status(200).send()
   } catch (e) {
     console.log(`Failed to get server info:`, e.message)
