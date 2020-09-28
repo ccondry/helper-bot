@@ -8,6 +8,7 @@ router.post('/*', async (req, res, next) => {
   try {
     if (req.body.resource === 'messages' && req.body.event === 'created') {
       // new messages
+      console.log(req.body)
       // find the related user
       const user = await oauth2.getUser({appId: req.body.appId})
       // ignore messages from this user
@@ -29,10 +30,10 @@ router.post('/*', async (req, res, next) => {
           })
         } else if (staffRoom) {
           // message from staff in staff room
-          await webex(user.token.access_token).messages.create({
-            roomId: staffRoom.userRoomId,
-            text: message.text
-          })
+          // await webex(user.token.access_token).messages.create({
+          //   roomId: staffRoom.userRoomId,
+          //   text: message.text
+          // })
         }
       } else {
         // direct message
