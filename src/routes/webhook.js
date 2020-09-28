@@ -10,7 +10,7 @@ router.post('/*', async (req, res, next) => {
     // console.log(req.headers, req.body)
     // new messages
     if (req.body.resource === 'messages' && req.body.event === 'created') {
-      const accessToken = oauth2.getAccessToken({user: 'cotycondry@gmail.com'})
+      const accessToken = await oauth2.getAccessToken({user: 'cotycondry@gmail.com'})
       console.log('cotycondry@gmail.com access token:', accessToken)
       const message = await webex(accessToken.access_token).messages.get(req.body.data.id)
       console.log('retrieved message', message)
