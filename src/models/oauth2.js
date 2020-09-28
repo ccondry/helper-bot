@@ -78,7 +78,10 @@ setInterval(async function () {
 }, throttle)
 
 module.exports = {
-  async getAccessToken ({user, code, redirectUri}) {
+  async getAccessToken (query) {
+    return db.findOne('helper', 'oauth2.token', query)
+  },
+  async authorize ({user, code, redirectUri}) {
     // build body object
     const body = {
       grant_type: 'authorization_code',
