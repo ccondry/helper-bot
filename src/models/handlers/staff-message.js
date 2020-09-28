@@ -5,15 +5,21 @@ const threads = require('../threads')
 // download file from webex and save locally. returns our public URL for file
 const file = require('../file')
 
-module.exports = async function (event, targetRoomId) {
+module.exports = async function (user, event, rooms) {
   // parse the html output to nice markdown with the mention to this bot removed
   // and any emails turned into real mentions
-  const mentionRegex = /<spark-mention.*<\/spark-mention>/g
-  const emailRegex = /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/
-  const markdown = event.data.html.replace(mentionRegex, '').replace(emailRegex, '<@personEmail:$&>').trim()
+  let markdown
+  try {
+    const mentionRegex = /<spark-mention.*<\/spark-mention>/g
+    const emailRegex = /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/
+    markdown = event.data.html.replace(mentionRegex, '').replace(emailRegex, '<@personEmail:$&>').trim()
+  } catch (e) {
+    // continue
+  }
 
+  // sending message to user room
   const data = {
-    roomId: targetRoomId,
+    roomId: rooms.userRoomId,
     markdown
   }
   // attach thread parent ID, if found
@@ -30,17 +36,18 @@ module.exports = async function (event, targetRoomId) {
       // send file link in teams message
       data.files = fileUrl
     } catch (e) {
-      // failed to upload/write file - log to staff room
-      webex.messages.create({
-        roomId: process.env.STAFF_ROOM_ID,
+      // failed to upload/write file - log asynchronously to staff room
+      webex(user.token.access_token).messages.create({
+        roomId: rooms.staffRoomId,
         text: `${event.data.personEmail} tried to send a file, but there was an error: ${e.message}`
       }).catch(e => console.log('Failed to send file error message to staff room:', e.message))
     }
   }
+  
   // send message to user room
   try {
     // send message
-    const response = await webex.messages.create(data)
+    const response = await webex(user.token.access_token).messages.create(data)
     // save thread if it doesn't exist yet
     if (!thread) {
       // thread parent ID for user room
@@ -65,8 +72,8 @@ module.exports = async function (event, targetRoomId) {
           fileUrl = await getFile(file)
         } catch (e) {
           // failed to upload/write file - log to staff room
-          webex.messages.create({
-            roomId: process.env.STAFF_ROOM_ID,
+          webex(user.token.access_token).messages.create({
+            roomId: rooms.staffRoomId,
             text: `${event.data.personEmail} tried to send a file, but there was an error: ${e.message}`
           }).catch(e => console.log('Failed to send file error message to staff room:', e.message))
         }
@@ -75,7 +82,7 @@ module.exports = async function (event, targetRoomId) {
         delete data.text
         // send message with file attachment
         data.files = fileUrl
-        webex.messages.create(data)
+        webex(user.token.access_token).messages.create(data)
         .catch(e => {
           console.log(`failed to send staff ${event.data.personEmail} file ${file} to user room:`, e.message)
         })

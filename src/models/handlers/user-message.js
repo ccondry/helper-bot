@@ -3,12 +3,12 @@ const threads = require('../threads')
 const file = require('../file')
 // const me = require('../me')
 
-module.exports = async function (user, event, targetRoomId) {
+module.exports = async function (user, event, rooms) {
   // remove @mention html tags
   const mentionRegex = /<spark-mention.*<\/spark-mention>/g
   const html = event.data.html.replace(mentionRegex, '').trim()
   // const html = event.data.html
-  
+
   // remove @mention user name from text
   // const botName = user.displayName
   // const text = event.data.text.replace(botName, '').trim()
@@ -16,7 +16,7 @@ module.exports = async function (user, event, targetRoomId) {
 
   // construct the message to forward to staff room
   const data = {
-    roomId: targetRoomId,
+    roomId: rooms.staffRoomId,
     text: `${event.data.personEmail} said ${text}`
   }
   // only send markdown if it has more than <p> formatting
@@ -43,7 +43,7 @@ module.exports = async function (user, event, targetRoomId) {
     } catch (e) {
       // failed to upload/write file - log to staff room
       webex(user.token.access_token).messages.create({
-        roomId: targetRoomId,
+        roomId: rooms.staffRoomId,
         text: `${event.data.personEmail} tried to send a file, but there was an error: ${e.message}`
       }).catch(e => console.log('Failed to send file error message to staff room:', e.message))
     }
@@ -77,7 +77,7 @@ module.exports = async function (user, event, targetRoomId) {
         } catch (e) {
           // failed to upload/write file - log to staff room
           webex(user.token.access_token).messages.create({
-            roomId: targetRoomId,
+            roomId: rooms.staffRoomId,
             text: `${event.data.personEmail} tried to send a file, but there was an error: ${e.message}`
           }).catch(e => console.log('Failed to send file error message to staff room:', e.message))
         }
