@@ -7,9 +7,11 @@ module.exports = async function (user, event, targetRoomId) {
   // remove @mention html tags
   // const mentionRegex = /<spark-mention.*<\/spark-mention>/g
   // const html = event.data.html.replace(mentionRegex, '').trim()
+  const html = event.data.html
   // remove @mention user name from text
   // const botName = user.displayName
   // const text = event.data.text.replace(botName, '').trim()
+  const text = event.data.text
 
   // construct the message to forward to staff room
   const data = {
