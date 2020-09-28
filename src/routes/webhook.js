@@ -6,11 +6,15 @@ const oauth2 = require('../models/oauth2')
 // all webhook messages from webex
 router.post('/*', async (req, res, next) => {
   try {
-    // new messages
     if (req.body.resource === 'messages' && req.body.event === 'created') {
+      // new messages
       // find the related user
       const user = await oauth2.getUser({appId: req.body.appId})
-      // and get the actual message content
+      // ignore messages from this user
+      if (user.id === req.body.data.personId) {
+        return
+      }
+      // get the actual message content
       const message = await webex(user.token.access_token).messages.get(req.body.data.id)
       // console.log('retrieved message for', user.personEmail, ':', message)
       if (req.body.data.roomType === 'group') {
