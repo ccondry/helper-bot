@@ -1,5 +1,7 @@
 const fetch = require('./fetch')
 const db = require('./db')
+const webex = require('./webex')
+
 const collection = 'user'
 const database = 'helper'
 
@@ -113,10 +115,12 @@ module.exports = {
       // set created time in seconds
       const now = new Date()
       accessToken.created = Math.round(now.getTime() / 1000)
-      // store token in database
+      // get user data associated with this access token
+      const me = await webex(accessToken.access_token).messages.get(req.body.data.id)
+      // store user and token in database
       await db.insertOne(database, collection, {
-        personEmail,
-        personId,
+        personEmail: me.emails[0],
+        personId: me.id,
         appId,
         rooms: [{userRoomId, staffRoomId}],
         token: accessToken
