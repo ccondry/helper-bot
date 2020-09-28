@@ -58,6 +58,7 @@ setInterval(async function () {
 router.post('/', async (req, res, next) => {
   try {
     // console.log('req.headers.host =', req.headers.host)
+    console.log('req =', req)
     const accessToken = await model.getAccessToken({
       code: req.body.code,
       redirectUri: 'https://mm-helper.cxdemo.net/oauth2/'
