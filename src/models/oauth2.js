@@ -22,10 +22,11 @@ module.exports = {
       grant_type: 'authorization_code',
       client_id: process.env.OAUTH_CLIENT_ID,
       client_secret: process.env.OAUTH_CLIENT_SECRET,
-      code: code,
+      code,
       redirect_uri: redirectUri
     }
     const encodedBody = urlEncode(body)
+    console.log('encodedBody =', encodedBody)
     return fetch('https://webexapis.com/v1/access_token', {
       method: 'POST',
       headers: {
