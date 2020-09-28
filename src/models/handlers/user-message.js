@@ -23,8 +23,8 @@ module.exports = async function (user, event, rooms) {
     roomId: rooms.staffRoomId,
     text: `${event.data.personEmail} said ${text}`
   }
-  // only send markdown if it has more than <p> formatting
-  if (html && html.length > text.length + 8) {
+  // only send markdown if html has more than <p> formatting
+  if (typeof html === 'string' && typeof text === 'string' && html.length > text.length + 8) {
     data.markdown = `${event.data.personEmail} said ${html}`
   }
   const thread = threads.find(v => v.userThreadId === event.data.parentId)
@@ -33,14 +33,16 @@ module.exports = async function (user, event, rooms) {
     data.parentId = thread.staffThreadId
   }
   // forward the first attached file, if any
-  if (event.data.files && event.data.files.length) {
+  if (Array.isArray(event.data.files) && event.data.files.length) {
+    // remove the first file from event data and get the file data
+    const file1 = event.data.files.shift()
     // download file and get publicly-accessible link for the file
     try {
-      const fileUrl = await file.get(event.data.files[0], user.token.access_token)
+      const fileUrl = await file.get(file1, user.token.access_token)
       // send file link in teams message
       data.files = fileUrl
       // did they send only files, no text? change the message sent to staff
-      if (text.length === 0) {
+      if (typeof text !== 'string' || text.length === 0) {
         data.text = `${event.data.personEmail} sent this file`
         delete data.markdown
       }
@@ -69,9 +71,9 @@ module.exports = async function (user, event, rooms) {
       })
     }
     // more files to send?
-    if (event.data.files && event.data.files.length > 1) {
-      // remove the first file we already sent
-      event.data.files.shift()
+    if (Array.isArray(event.data.files) && event.data.files.length > 1) {
+      // remove markdown from previous data
+      delete data.markdown
       // send the rest of the files as separate messages
       for (const file of event.data.files) {
         // download file and get publicly-accessible link for the file
@@ -85,8 +87,6 @@ module.exports = async function (user, event, rooms) {
             text: `${event.data.personEmail} tried to send a file, but there was an error: ${e.message}`
           }).catch(e => console.log('Failed to send file error message to staff room:', e.message))
         }
-        // remove markdown from previous data
-        delete data.markdown
         // send message with file attachment
         data.files = fileUrl
         data.text = `${event.data.personEmail} also sent this file`

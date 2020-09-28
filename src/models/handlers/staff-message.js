@@ -33,14 +33,21 @@ module.exports = async function (user, event, rooms) {
     data.parentId = thread.userThreadId
   }
   // forward the first attached file, if any
-  if (event.data.files && event.data.files.length) {
+  if (Array.isArray(event.data.files) && event.data.files.length) {
+    // remove the first file from event data and get the file data
+    const file1 = event.data.files.shift()
+    // download file and get publicly-accessible link for the file
     try {
-      // download file and get publicly-accessible link for the file
-      const fileUrl = await file.get(event.data.files[0], user.token.access_token)
+      const fileUrl = await file.get(file1, user.token.access_token)
       // send file link in teams message
       data.files = fileUrl
+      // did they send only files, no text? change the message sent to staff
+      if (typeof text !== 'string' || text.length === 0) {
+        data.text = `${event.data.personEmail} sent this file`
+        delete data.markdown
+      }
     } catch (e) {
-      // failed to upload/write file - log asynchronously to staff room
+      // failed to upload/write file - log to staff room
       webex(user.token.access_token).messages.create({
         roomId: rooms.staffRoomId,
         text: `${event.data.personEmail} tried to send a file, but there was an error: ${e.message}`
@@ -65,9 +72,10 @@ module.exports = async function (user, event, rooms) {
       })
     }
     // more files to send?
-    if (event.data.files && event.data.files.length > 1) {
-      // remove the first file we already sent
-      event.data.files.shift()
+    if (Array.isArray(event.data.files) && event.data.files.length > 1) {
+      // remove previous data properties
+      delete data.markdown
+      delete data.text
       // send the rest of the files as separate messages
       for (const file of event.data.files) {
         // download file and get publicly-accessible link for the file
@@ -81,9 +89,6 @@ module.exports = async function (user, event, rooms) {
             text: `${event.data.personEmail} tried to send a file, but there was an error: ${e.message}`
           }).catch(e => console.log('Failed to send file error message to staff room:', e.message))
         }
-        // remove previous data properties
-        delete data.markdown
-        delete data.text
         // send message with file attachment
         data.files = fileUrl
         webex(user.token.access_token).messages.create(data)
