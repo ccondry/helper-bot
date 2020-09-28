@@ -5,9 +5,16 @@ const model = require('../models/oauth2')
 // save client access code
 router.post('/', async (req, res, next) => {
   try {
-    const existing = await model.getAccessToken({user: req.body.user})
-    if (existing) {
-      return res.status(200).send({message: 'Your access token already exists and is valid.'})
+    // TODO get user from JWT or something
+    const existing = await model.getUser({personEmail: req.body.user})
+    if (existing && existing.token && existing.token.refresh_token) {
+      // try to refresh their token now to make sure it's good
+      try {
+        await model.refreshToken(existing.token.refresh_token)
+        return res.status(200).send({message: 'Your access token already exists and has been refreshed successfully.'})
+      } catch (e) {
+        // continue
+      }
     }
     // get access token from webex
     await model.authorize({

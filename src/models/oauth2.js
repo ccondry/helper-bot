@@ -1,6 +1,6 @@
 const fetch = require('./fetch')
 const db = require('./db')
-const collection = 'oauth2.token'
+const collection = 'user'
 
 // wait time in milliseconds between checking all tokens
 const throttle = 20 * 1000
@@ -12,8 +12,9 @@ interval()
 setInterval(interval, throttle)
 
 async function interval () {
-  const tokens = await db.find('helper', collection)
-  for (const token of tokens) {
+  const users = await db.find('helper', collection)
+  for (const user of users) {
+    const token = user.token
     // expiring soon?
     const now = new Date()
     const nowSeconds = Math.round(now.getTime() / 1000)
@@ -36,9 +37,9 @@ async function interval () {
       }
       // update database with new token details
       try {
-        const query = {_id: db.ObjectId(token._id)}
+        const query = {_id: db.ObjectId(user._id)}
         newToken.created = Math.round(now.getTime() / 1000)
-        const updates = {$set: newToken}
+        const updates = {$set: {token: newToken}}
         await db.updateOne('helper', collection, query, updates)
       } catch (e) {
         console.log(`token ${token.user} failed to refresh:`, e.message)
@@ -84,7 +85,7 @@ const urlEncode = function (params) {
 }
 
 module.exports = {
-  async getAccessToken (query) {
+  async getUser (query) {
     return db.findOne('helper', collection, query)
   },
   async authorize ({user, code, redirectUri}) {
