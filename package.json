@@ -1,7 +1,7 @@
 {
   "name": "helper-bot",
-  "version": "1.1.0",
-  "description": "A Webex Teams bot that connects support staff with end users who need help, without revealing the real people supporting the end users.",
+  "version": "2.0.0",
+  "description": "Web service for maintaining support room mediator users in the Webex Teams Helper integration.",
   "main": "src/index.js",
   "scripts": {
     "start": "node src",

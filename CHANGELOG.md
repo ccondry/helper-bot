@@ -3,6 +3,17 @@
 Dates are in YYYY-MM-DD format
 
 
+# 2.0.0 (2020-09-28)
+
+### Features
+
+* **Bot:** Major changes to bot structure - use webhooks and oauth2 integration
+to mediate messages as a user instead of a bot, without the need for users to
+@mention the bot to communicate in the user room. Also added support for
+multiple users, each supporting multiple user/staff room sets. Store all data
+in mongodb database, and refresh tokens when necessary
+
+
 # 1.1.0 (2020-09-23)
 
 ### Features
