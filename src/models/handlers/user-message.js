@@ -4,6 +4,7 @@ const file = require('../file')
 // const me = require('../me')
 
 module.exports = async function (user, event, rooms) {
+  console.log('handleUserMessage')
   // remove @mention html tags
   let html
   try {

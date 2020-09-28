@@ -21,6 +21,7 @@ router.post('/*', async (req, res, next) => {
     }
     if (req.body.resource === 'messages' && req.body.event === 'created') {
       // new messages
+      console.log('new message', req.body)
       // find the related user
       const user = await oauth2.getUser({personId: req.body.createdBy})
       // ignore messages from this user
@@ -33,7 +34,7 @@ router.post('/*', async (req, res, next) => {
       const event = JSON.parse(JSON.stringify(req.body))
       event.data = message
       // debug
-      // console.log(event)
+      console.log(event)
       // console.log('retrieved message for', user.personEmail, ':', message)
       if (event.data.roomType === 'group') {
         // room message
