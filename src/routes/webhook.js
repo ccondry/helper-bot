@@ -9,7 +9,6 @@ const crypto = require('crypto')
 // all webhook messages from webex
 router.post('/*', async (req, res, next) => {
   try {
-    console.log('new webhook:', req.body)
     // validate secret
     const signature = req.headers['x-spark-signature']
     // hash the request body with sha1 using our secret
@@ -18,7 +17,7 @@ router.post('/*', async (req, res, next) => {
     .digest('hex')
     
     if (signature !== hash) {
-      console.log('this webhook failed hash check:', req.body)
+      console.log('webhook failed hash check:', req.body)
       return res.status(400).send({message: 'Invalid request signature in x-spark-signature'})
     }
     if (req.body.resource === 'messages' && req.body.event === 'created') {
@@ -35,18 +34,11 @@ router.post('/*', async (req, res, next) => {
       const event = JSON.parse(JSON.stringify(req.body))
       event.data = message
       // debug
-      console.log(event)
-      // console.log('retrieved message for', user.personEmail, ':', message)
       if (event.data.roomType === 'group') {
         // room message
         const userRoomSet = user.rooms.find(v => v.userRoomId === event.data.roomId)
         const staffRoomSet = user.rooms.find(v => v.staffRoomId === event.data.roomId)
         if (userRoomSet) {
-          // message from user in users room
-          // await webex(user.token.access_token).messages.create({
-          //   roomId: userRoom.staffRoomId,
-          //   text: `${message.personEmail} said ${message.text}`
-          // })
           handleUserMessage(user, event, userRoomSet)
         } else if (staffRoomSet) {
           // message from staff in staff room
@@ -56,10 +48,8 @@ router.post('/*', async (req, res, next) => {
           } else {
             // ignore messages that do not @ me
           }
-          // await webex(user.token.access_token).messages.create({
-          //   roomId: staffRoom.userRoomId,
-          //   text: message.text
-          // })
+        } else {
+          console.log('webhook room did not match any rooms for', user.personEmail)
         }
       } else {
         // direct message
