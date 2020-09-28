@@ -102,8 +102,7 @@ module.exports = {
       // set created time in seconds
       const now = new Date()
       accessToken.created = Math.round(now.getTime() / 1000)
-      // TODO get user from JWT or something
-      accessToken.user = req.body.user
+      accessToken.user = user
       // store token in database
       await db.insertOne('helper', 'oauth2.tokens', accessToken)
       return
