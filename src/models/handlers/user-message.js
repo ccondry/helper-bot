@@ -19,7 +19,7 @@ module.exports = async function (user, event, targetRoomId) {
     text: `${event.data.personEmail} said ${text}`
   }
   // only send markdown if it has more than <p> formatting
-  if (html.length > text.length + 8) {
+  if (html && html.length > text.length + 8) {
     data.markdown = `${event.data.personEmail} said ${html}`
   }
   const thread = threads.find(v => v.userThreadId === event.data.parentId)
