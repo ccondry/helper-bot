@@ -10,15 +10,15 @@ const crypto = require('crypto')
 router.post('/*', async (req, res, next) => {
   try {
     // validate secret
-    console.log('headers', req.headers)
-    const signature = req.headers['X-Spark-Signature']
-    console.log('header signature:', signature)
+    const signature = req.headers['x-spark-signature']
     // hash the request body with sha1 using our secret
     const hash = crypto.createHmac('sha1', process.env.WEBHOOK_SECRET)
     .update(JSON.stringify(req.body))
     .digest('hex')
-    console.log('hash', hash)
 
+    if (signature !== hash) {
+      return res.status(400).send({message: 'Invalid request signature in x-spark-signature'})
+    }
     if (req.body.resource === 'messages' && req.body.event === 'created') {
       // new messages
       // find the related user
