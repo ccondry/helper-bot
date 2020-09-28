@@ -4,7 +4,8 @@
   "description": "A Webex Teams bot that connects support staff with end users who need help, without revealing the real people supporting the end users.",
   "main": "src/index.js",
   "scripts": {
-    "start": "node src"
+    "start": "node src",
+    "test": "mocha"
   },
   "author": "Coty Condry <ccondry@cisco.com>",
   "license": "MIT",

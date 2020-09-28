@@ -6,6 +6,10 @@ router.post('/*', async (req, res, next) => {
   try {
     // just log for now
     console.log(req.headers, req.body)
+    // new messages
+    if (req.body.resource === 'messages' && req.body.event === 'created') {
+      webex.messages.get()
+    }
     return res.status(200).send()
   } catch (e) {
     console.log(`Failed to get server info:`, e.message)
