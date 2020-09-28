@@ -60,12 +60,12 @@ async function interval () {
         if (hours > 24) {
           const days = Math.floor(hours / 24)
           hours = hours % 60
-          console.log(`token ${token.user} does not need to be refreshed yet. It will in ${days} days, ${hours} hours, and ${minutes} minutes`)
+          console.log(`token for ${user.personEmail} does not need to be refreshed yet. It will in ${days} days, ${hours} hours, and ${minutes} minutes`)
         } else {
-          console.log(`token ${token.user} does not need to be refreshed yet. It will in ${hours} hours and ${minutes} minutes`)
+          console.log(`token for ${user.personEmail} does not need to be refreshed yet. It will in ${hours} hours and ${minutes} minutes`)
         }
       } else {
-        console.log(`token ${token.user} does not need to be refreshed yet. It will in ${minutes} minutes`)
+        console.log(`token for ${user.personEmail} does not need to be refreshed yet. It will in ${minutes} minutes`)
       }
     }
   }
