@@ -57,22 +57,21 @@ setInterval(async function () {
     } else {
       // it is not refresh time yet
       // how many seconds before we need to refresh
-      const t = refreshTime - nowSeconds
+      const secondsLeft = refreshTime - nowSeconds
       // minutes before we need to refresh
-      const m = Math.round(t / 60)
-      if (m > 60) {
-        const h = Math.round(m / 60)
-        if (h > 24) {
-          const d = Math.round(h / 24)
-          const hr = h % 24
-          const mr = m % 60
-          console.log(`token ${token.user} does not need to be refreshed yet. It will in ${d} days, ${hr} hours, and ${mr} minutes`)
+      let minutes = Math.round(secondsLeft / 60)
+      if (minutes > 60) {
+        let hours = Math.floor(minutes / 60)
+        minutes = minutes % 60
+        if (hours > 24) {
+          const days = Math.floor(hours / 24)
+          hours = hours % 60
+          console.log(`token ${token.user} does not need to be refreshed yet. It will in ${days} days, ${hours} hours, and ${minutes} minutes`)
         } else {
-          const r = m % 60
-          console.log(`token ${token.user} does not need to be refreshed yet. It will in ${h} hours and ${r} minutes`)
+          console.log(`token ${token.user} does not need to be refreshed yet. It will in ${hours} hours and ${minutes} minutes`)
         }
       } else {
-        console.log(`token ${token.user} does not need to be refreshed yet. It will in ${m} minutes`)
+        console.log(`token ${token.user} does not need to be refreshed yet. It will in ${minutes} minutes`)
       }
     }
   }
