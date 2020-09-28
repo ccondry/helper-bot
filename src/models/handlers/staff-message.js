@@ -17,9 +17,13 @@ module.exports = async function (user, event, rooms) {
     // continue
   }
 
+  // copy the plain text message from the event
+  const text = event.data.text
+  
   // sending message to user room
   const data = {
     roomId: rooms.userRoomId,
+    text,
     markdown
   }
   // attach thread parent ID, if found
@@ -43,7 +47,7 @@ module.exports = async function (user, event, rooms) {
       }).catch(e => console.log('Failed to send file error message to staff room:', e.message))
     }
   }
-  
+
   // send message to user room
   try {
     // send message
