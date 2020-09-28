@@ -22,7 +22,7 @@ router.post('/*', async (req, res, next) => {
       const event = JSON.parse(JSON.stringify(req.body))
       event.data = message
       // debug
-      console.log(event)
+      // console.log(event)
       // console.log('retrieved message for', user.personEmail, ':', message)
       if (event.data.roomType === 'group') {
         // room message
