@@ -4,10 +4,22 @@ const webex = require('../models/webex')
 const oauth2 = require('../models/oauth2')
 const handleUserMessage = require('../models/handlers/user-message')
 const handleStaffMessage = require('../models/handlers/staff-message')
+const crypto = require('crypto')
 
 // all webhook messages from webex
 router.post('/*', async (req, res, next) => {
   try {
+    // validate secret
+    const signature = req.headers['X-Spark-Signature']
+    console.log('header signature:', signature)
+    const secret = process.env.WEBHOOK_SECRET
+    console.log('secret', secret)
+    // hash the request body with sha1 using our secret
+    const hash = crypto.createHmac('sha1', process.env.WEBHOOK_SECRET)
+    .update(JSON.stringify(req.body))
+    .digest('hex')
+    console.log('hash', hash)
+
     if (req.body.resource === 'messages' && req.body.event === 'created') {
       // new messages
       // find the related user
