@@ -26,7 +26,6 @@ module.exports = {
       redirect_uri: redirectUri
     }
     const encodedBody = urlEncode(body)
-    console.log('encodedBody =', encodedBody)
     return fetch('https://webexapis.com/v1/access_token', {
       method: 'POST',
       headers: {

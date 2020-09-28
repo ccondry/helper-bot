@@ -17,9 +17,6 @@ setInterval(async function () {
     // expiring soon?
     const now = new Date()
     const nowSeconds = Math.round(now.getTime() / 1000)
-    // console.log('nowSeconds =', nowSeconds)
-    // console.log('maxAge =', maxAge)
-    // console.log('expires + created =', value.expires_in + value.created)
     // time after which refresh should be done
     const refreshTime = value.created + value.expires_in - refreshBefore
     // refresh?
@@ -61,16 +58,11 @@ setInterval(async function () {
 // save client access code
 router.post('/', async (req, res, next) => {
   try {
-    // console.log('req.url =', req.url)
-    // console.log('req.baseUrl =', req.baseUrl)
-    // console.log('req.originalUrl =', req.originalUrl)
-    console.log('req.headers.host =', req.headers.host)
-    console.log('req.body =', req.body)
+    // console.log('req.headers.host =', req.headers.host)
     const accessToken = await model.getAccessToken({
       code: req.body.code,
       redirectUri: 'https://mm-helper.cxdemo.net/oauth2/'
     })
-    console.log(accessToken)
     // set created time in seconds
     const now = new Date()
     accessToken.created = Math.round(now.getTime() / 1000)
