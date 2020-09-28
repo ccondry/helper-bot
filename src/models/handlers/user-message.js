@@ -5,9 +5,13 @@ const file = require('../file')
 
 module.exports = async function (user, event, rooms) {
   // remove @mention html tags
-  const mentionRegex = /<spark-mention.*<\/spark-mention>/g
-  const html = event.data.html.replace(mentionRegex, '').trim()
-  // const html = event.data.html
+  let html
+  try {
+    const mentionRegex = /<spark-mention.*<\/spark-mention>/g
+    html = event.data.html.replace(mentionRegex, '').trim()
+  } catch (e) {
+    // continue
+  }
 
   // remove @mention user name from text
   // const botName = user.displayName
