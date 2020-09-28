@@ -16,13 +16,13 @@ router.post('/*', async (req, res, next) => {
       if (req.body.createdBy === req.body.data.personId) {
         return res.status(200).send()
       }
-      // debug
-      console.log(req.body)
       // get the actual message content
       const message = await webex(user.token.access_token).messages.get(req.body.data.id)
       // replace body data with message
       const event = JSON.parse(JSON.stringify(req.body))
       event.data = message
+      // debug
+      console.log(event)
       // console.log('retrieved message for', user.personEmail, ':', message)
       if (event.data.roomType === 'group') {
         // room message
