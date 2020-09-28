@@ -134,7 +134,8 @@ module.exports = {
         personId: me.id,
         displayName: me.displayName,
         nickName: me.nickName,
-        token: accessToken
+        token: accessToken,
+        rooms: rooms || []
       }
       if (me.firstName) {
         data.firstName = me.firstName
@@ -142,15 +143,31 @@ module.exports = {
       if (me.firstName) {
         data.lastName = me.lastName
       }
-      if (rooms) {
-        data.rooms = rooms
-      }
       // find existing record
       const query = {personId: me.id}
       // check for existing record for this user
       const existing = await db.findOne(database, collection, query)
       if (existing) {
         // update existing
+        // check that we are not overwriting all existing room associations with
+        // the new one
+        if (existing.rooms && existing.rooms.length) {
+          // there are existing room(s) defined for this user
+          for (const room of existing.rooms) {
+            // insert the existing rooms into data, unless they already exist
+            const found = data.rooms.findIndex(v => {
+              return v.staffRoomId === room.staffRoomId ||
+              v.userRoomId === room.userRoomId ||
+              v.staffRoomId === room.userRoomId ||
+              v.userRoomId === room.staffRoomId
+            })
+            if (found < 0) {
+              // not found. add existing to update data.
+              data.rooms.push(room)
+            }
+          }
+        }
+        // update user in database
         const updates = {$set: data}
         await db.updateOne(database, collection, query, updates)
       } else {
