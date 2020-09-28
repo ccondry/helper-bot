@@ -1,16 +1,15 @@
 const webex = require('../webex')
 const threads = require('../threads')
 const file = require('../file')
-const me = require('../me')
+// const me = require('../me')
 
-module.exports = async function  (event, targetRoomId) {
+module.exports = async function (user, event, targetRoomId) {
   // remove @mention html tags
-  const mentionRegex = /<spark-mention.*<\/spark-mention>/g
-  const html = event.data.html.replace(mentionRegex, '').trim()
-  // remove @mention bot name from text
-  const bot = await me.get()
-  const botName = bot.displayName
-  const text = event.data.text.replace(botName, '').trim()
+  // const mentionRegex = /<spark-mention.*<\/spark-mention>/g
+  // const html = event.data.html.replace(mentionRegex, '').trim()
+  // remove @mention user name from text
+  // const botName = user.displayName
+  // const text = event.data.text.replace(botName, '').trim()
 
   // construct the message to forward to staff room
   const data = {
@@ -40,7 +39,7 @@ module.exports = async function  (event, targetRoomId) {
       }
     } catch (e) {
       // failed to upload/write file - log to staff room
-      webex.messages.create({
+      webex(user.token.access_token).messages.create({
         roomId: targetRoomId,
         text: `${event.data.personEmail} tried to send a file, but there was an error: ${e.message}`
       }).catch(e => console.log('Failed to send file error message to staff room:', e.message))
@@ -49,7 +48,7 @@ module.exports = async function  (event, targetRoomId) {
 
   // send message to staff room
   try {
-    const response = await webex.messages.create(data)
+    const response = await webex(user.token.access_token).messages.create(data)
     // save thread if it doesn't exist yet
     if (!thread) {
       // thread parent ID for user room
@@ -74,7 +73,7 @@ module.exports = async function  (event, targetRoomId) {
           fileUrl = await getFile(file)
         } catch (e) {
           // failed to upload/write file - log to staff room
-          webex.messages.create({
+          webex(user.token.access_token).messages.create({
             roomId: targetRoomId,
             text: `${event.data.personEmail} tried to send a file, but there was an error: ${e.message}`
           }).catch(e => console.log('Failed to send file error message to staff room:', e.message))
@@ -84,7 +83,7 @@ module.exports = async function  (event, targetRoomId) {
         // send message with file attachment
         data.files = fileUrl
         data.text = `${event.data.personEmail} also sent this file`
-        webex.messages.create(data)
+        webex(user.token.access_token).messages.create(data)
         .catch(e => {
           console.log(`failed to send user ${event.data.personEmail} file ${file} to support room:`, e.message)
         })

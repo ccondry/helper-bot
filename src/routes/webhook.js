@@ -34,10 +34,10 @@ router.post('/*', async (req, res, next) => {
           //   roomId: userRoom.staffRoomId,
           //   text: `${message.personEmail} said ${message.text}`
           // })
-          handleUserMessage(event, userRoom.staffRoomId)
+          handleUserMessage(user, event, userRoom.staffRoomId)
         } else if (staffRoom) {
           // message from staff in staff room
-          handleStaffMessage(event, staffRoom.userRoomId)
+          handleStaffMessage(user, event, staffRoom.userRoomId)
           // await webex(user.token.access_token).messages.create({
           //   roomId: staffRoom.userRoomId,
           //   text: message.text
