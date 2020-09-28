@@ -8,13 +8,14 @@ router.post('/*', async (req, res, next) => {
   try {
     if (req.body.resource === 'messages' && req.body.event === 'created') {
       // new messages
-      console.log(req.body)
       // find the related user
-      const user = await oauth2.getUser({appId: req.body.appId})
+      const user = await oauth2.getUser({personId: req.body.createdBy})
       // ignore messages from this user
-      if (user.id === req.body.data.personId) {
-        return
+      if (req.body.createdBy === req.body.data.personId) {
+        return res.status(200).send()
       }
+      // debug
+      console.log(req.body)
       // get the actual message content
       const message = await webex(user.token.access_token).messages.get(req.body.data.id)
       // console.log('retrieved message for', user.personEmail, ':', message)
