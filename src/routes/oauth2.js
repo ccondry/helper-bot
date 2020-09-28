@@ -66,7 +66,7 @@ router.post('/', async (req, res, next) => {
     console.log('req.originalUrl =', req.originalUrl)
     const accessToken = await model.getAccessToken({
       code: req.body.code,
-      redirectUri: 'https://mm-helper.cxdemo.net/oauth2'
+      redirectUri: 'https://mm-helper.cxdemo.net/oauth2/'
     })
     console.log(accessToken)
     // set created time in seconds
