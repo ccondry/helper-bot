@@ -16,6 +16,6 @@ const logLevel = 1
 const db = new mongo(url, connectOptions, logLevel)
 
 // start connecting now
-db.getConnection('helper')
+// db.getConnection('helper')
 
 module.exports = db
