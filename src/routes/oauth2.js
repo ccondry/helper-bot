@@ -75,7 +75,7 @@ router.post('/', async (req, res, next) => {
     cache[req.body.user] = accessToken
     return res.status(200).send()
   } catch (e) {
-    console.log(`Failed to get server info:`, e.message)
+    console.log(`Failed to save oauth2 access token:`, e.message)
     return res.status(500).send(e.message)
   }
 })
