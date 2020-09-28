@@ -6,7 +6,8 @@ const collection = 'user'
 const database = 'helper'
 
 // wait time in milliseconds between checking all tokens
-const throttle = 20 * 1000
+// this is 6 hours
+const throttle = 1000 * 60 * 60 * 6
 
 // run now
 interval()
