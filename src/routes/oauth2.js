@@ -61,9 +61,11 @@ setInterval(async function () {
 // save client access code
 router.post('/', async (req, res, next) => {
   try {
-    console.log('req.url =', req.url)
-    console.log('req.baseUrl =', req.baseUrl)
-    console.log('req.originalUrl =', req.originalUrl)
+    // console.log('req.url =', req.url)
+    // console.log('req.baseUrl =', req.baseUrl)
+    // console.log('req.originalUrl =', req.originalUrl)
+    console.log('req.headers.host =', req.headers.host)
+    console.log('req.body =', req.body)
     const accessToken = await model.getAccessToken({
       code: req.body.code,
       redirectUri: 'https://mm-helper.cxdemo.net/oauth2/'
