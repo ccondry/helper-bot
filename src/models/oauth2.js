@@ -116,7 +116,7 @@ module.exports = {
       const now = new Date()
       accessToken.created = Math.round(now.getTime() / 1000)
       // get user data associated with this access token
-      const me = await webex(accessToken.access_token).messages.get(req.body.data.id)
+      const me = await webex(accessToken.access_token).people.get('me')
       // store user and token in database
       await db.insertOne(database, collection, {
         personEmail: me.emails[0],
