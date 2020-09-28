@@ -5,7 +5,7 @@ const threads = require('../threads')
 // download file from webex and save locally. returns our public URL for file
 const file = require('../file')
 
-module.exports = async function (event) {
+module.exports = async function (event, targetRoomId) {
   // parse the html output to nice markdown with the mention to this bot removed
   // and any emails turned into real mentions
   const mentionRegex = /<spark-mention.*<\/spark-mention>/g
@@ -13,7 +13,7 @@ module.exports = async function (event) {
   const markdown = event.data.html.replace(mentionRegex, '').replace(emailRegex, '<@personEmail:$&>').trim()
 
   const data = {
-    roomId: process.env.USER_ROOM_ID,
+    roomId: targetRoomId,
     markdown
   }
   // attach thread parent ID, if found

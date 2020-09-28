@@ -3,7 +3,7 @@ const threads = require('../threads')
 const file = require('../file')
 const me = require('../me')
 
-module.exports = async function  (event) {
+module.exports = async function  (event, targetRoomId) {
   // remove @mention html tags
   const mentionRegex = /<spark-mention.*<\/spark-mention>/g
   const html = event.data.html.replace(mentionRegex, '').trim()
@@ -14,7 +14,7 @@ module.exports = async function  (event) {
 
   // construct the message to forward to staff room
   const data = {
-    roomId: process.env.STAFF_ROOM_ID,
+    roomId: targetRoomId,
     text: `${event.data.personEmail} said ${text}`
   }
   // only send markdown if it has more than <p> formatting
@@ -41,7 +41,7 @@ module.exports = async function  (event) {
     } catch (e) {
       // failed to upload/write file - log to staff room
       webex.messages.create({
-        roomId: process.env.STAFF_ROOM_ID,
+        roomId: targetRoomId,
         text: `${event.data.personEmail} tried to send a file, but there was an error: ${e.message}`
       }).catch(e => console.log('Failed to send file error message to staff room:', e.message))
     }
@@ -75,7 +75,7 @@ module.exports = async function  (event) {
         } catch (e) {
           // failed to upload/write file - log to staff room
           webex.messages.create({
-            roomId: process.env.STAFF_ROOM_ID,
+            roomId: targetRoomId,
             text: `${event.data.personEmail} tried to send a file, but there was an error: ${e.message}`
           }).catch(e => console.log('Failed to send file error message to staff room:', e.message))
         }
