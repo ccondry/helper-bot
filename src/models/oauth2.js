@@ -65,13 +65,13 @@ setInterval(async function () {
           const d = Math.round(h / 24)
           const hr = h % 24
           const mr = m % 60
-          console.log(`token ${key} does not need to be refreshed yet. It will in ${d} days, ${hr} hours, and ${mr} minutes`)
+          console.log(`token ${token.user} does not need to be refreshed yet. It will in ${d} days, ${hr} hours, and ${mr} minutes`)
         } else {
           const r = m % 60
-          console.log(`token ${key} does not need to be refreshed yet. It will in ${h} hours and ${r} minutes`)
+          console.log(`token ${token.user} does not need to be refreshed yet. It will in ${h} hours and ${r} minutes`)
         }
       } else {
-        console.log(`token ${key} does not need to be refreshed yet. It will in ${m} minutes`)
+        console.log(`token ${token.user} does not need to be refreshed yet. It will in ${m} minutes`)
       }
     }
   }
