@@ -69,7 +69,7 @@ setInterval(async function () {
 }, throttle)
 
 module.exports = {
-  async getAccessToken ({code, redirectUri}) {
+  async getAccessToken ({user, code, redirectUri}) {
     // build body object
     const body = {
       grant_type: 'authorization_code',
@@ -94,7 +94,7 @@ module.exports = {
       const now = new Date()
       accessToken.created = Math.round(now.getTime() / 1000)
       // store token in cache
-      cache[req.body.user] = accessToken
+      cache[user] = accessToken
       return
     } catch (e) {
       throw e

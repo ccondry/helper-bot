@@ -7,6 +7,7 @@ router.post('/', async (req, res, next) => {
   try {
     // get access token from webex
     await model.getAccessToken({
+      user: req.body.user,
       code: req.body.code,
       redirectUri: req.headers.referer.split('?')[0]
     })
