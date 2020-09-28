@@ -1,4 +1,5 @@
 const fetch = require('./fetch')
+const db = require('./db')
 
 // convert JSON object to url encoded string
 const urlEncode = function (params) {
@@ -16,36 +17,44 @@ const urlEncode = function (params) {
   return ret
 }
 
-const cache = {}
-
 // wait time in milliseconds between checking all tokens
 const throttle = 20 * 1000
 
 setInterval(async function () {
-  const keys = Object.keys(cache)
-  for (const key of keys) {
-    const value = cache[key]
+  const tokens = await db.find('helper', 'oauth2.tokens')
+  for (const token of tokens) {
     // expiring soon?
     const now = new Date()
     const nowSeconds = Math.round(now.getTime() / 1000)
     // number of seconds before refresh expires when we should perform refresh
-    const refreshBefore = Math.round(value.expires_in / 14)
+    const refreshBefore = Math.round(token.expires_in / 14)
     // time after which refresh should be done
-    const refreshTime = value.created + value.expires_in - refreshBefore
+    const refreshTime = token.created + token.expires_in - refreshBefore
     // refresh?
     if (nowSeconds > refreshTime) {
-      console.log(`token ${key} needs to be refreshed. refreshing now...`)
-      // time to refresh
+      // it is refresh time
+      console.log(`token ${token.user} needs to be refreshed. refreshing now...`)
+      // refesh the token with webex APIs
+      let newToken
       try {
-        const newToken = await model.refreshToken(value.refresh_token)
-        console.log(`token ${key} refreshed successfully:`, newToken)
-        newToken.created = Math.round(now.getTime() / 1000)
-        // update cache with new token details
-        cache[key] = newToken
+        newToken = await model.refreshToken(token.refresh_token)
+        console.log(`token ${token.user} refreshed successfully:`, newToken)
       } catch (e) {
-        console.log(`token ${key} failed to refresh:`, e.message)
+        console.log(`token ${token.user} failed to refresh:`, e.message)
+        return
+      }
+      // update database with new token details
+      try {
+        const query = {_id: db.ObjectId(token._id)}
+        newToken.created = Math.round(now.getTime() / 1000)
+        const updates = {$set: newToken}
+        await db.updateOne('helper', 'oauth2.tokens', query, updates)
+      } catch (e) {
+        console.log(`token ${token.user} failed to refresh:`, e.message)
+        return
       }
     } else {
+      // it is not refresh time yet
       // how many seconds before we need to refresh
       const t = refreshTime - nowSeconds
       // minutes before we need to refresh
@@ -93,8 +102,10 @@ module.exports = {
       // set created time in seconds
       const now = new Date()
       accessToken.created = Math.round(now.getTime() / 1000)
-      // store token in cache
-      cache[user] = accessToken
+      // TODO get user from JWT or something
+      accessToken.user = req.body.user
+      // store token in database
+      await db.insertOne('helper', 'oauth2.tokens', accessToken)
       return
     } catch (e) {
       throw e
