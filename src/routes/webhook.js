@@ -15,6 +15,21 @@ router.post('/*', async (req, res, next) => {
       console.log('retrieved message for', user.personEmail, ':', message)
       if (req.body.data.roomType === 'group') {
         // room message
+        const userRoom = user.rooms.find(v => v.userRoomId === message.roomId)
+        const staffRoom = user.rooms.find(v => v.staffRoomId === message.roomId)
+        if (userRoom) {
+          // message from user in users room
+          await webex(user.token.access_token).messages.send({
+            roomId: userRoom.staffRoomId,
+            text: `${message.personEmail} said ${message.text}`
+          })
+        } else if (staffRoom) {
+          // message from staff in staff room
+          await webex(user.token.access_token).messages.send({
+            roomId: staffRoom.userRoomId,
+            text: message.text
+          })
+        }
       } else {
         // direct message
       }
