@@ -29,5 +29,5 @@ app.use('/api/v1/webhook', require('./routes/webhook'))
 
 // listen on port defined in .env
 const server = app.listen(process.env.NODE_PORT || 3400, () => {
-  console.log(pkg.name, 'started listening on port', server.address().port, 'in', app.settings.env, 'mode')
+  console.log(pkg.name, pkg.version, 'started listening on port', server.address().port, 'in', app.settings.env, 'mode')
 })
