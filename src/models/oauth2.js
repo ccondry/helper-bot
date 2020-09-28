@@ -1,6 +1,7 @@
 const fetch = require('./fetch')
 const db = require('./db')
 const collection = 'user'
+const database = 'helper'
 
 // wait time in milliseconds between checking all tokens
 const throttle = 20 * 1000
@@ -12,7 +13,7 @@ interval()
 setInterval(interval, throttle)
 
 async function interval () {
-  const users = await db.find('helper', collection)
+  const users = await db.find(database, collection)
   for (const user of users) {
     const token = user.token
     // expiring soon?
@@ -25,14 +26,14 @@ async function interval () {
     // refresh?
     if (nowSeconds > refreshTime) {
       // it is refresh time
-      console.log(`token ${token.user} needs to be refreshed. refreshing now...`)
+      console.log(`token for ${user.personEmail} needs to be refreshed. refreshing now...`)
       // refesh the token with webex APIs
       let newToken
       try {
         newToken = await model.refreshToken(token.refresh_token)
-        console.log(`token ${token.user} refreshed successfully:`, newToken)
+        console.log(`token for ${user.personEmail} refreshed successfully:`, newToken)
       } catch (e) {
-        console.log(`token ${token.user} failed to refresh:`, e.message)
+        console.log(`token for ${user.personEmail} failed to refresh:`, e.message)
         return
       }
       // update database with new token details
@@ -40,9 +41,9 @@ async function interval () {
         const query = {_id: db.ObjectId(user._id)}
         newToken.created = Math.round(now.getTime() / 1000)
         const updates = {$set: {token: newToken}}
-        await db.updateOne('helper', collection, query, updates)
+        await db.updateOne(database, collection, query, updates)
       } catch (e) {
-        console.log(`token ${token.user} failed to refresh:`, e.message)
+        console.log(`token for ${user.personEmail} failed to refresh:`, e.message)
         return
       }
     } else {
@@ -86,9 +87,9 @@ const urlEncode = function (params) {
 
 module.exports = {
   async getUser (query) {
-    return db.findOne('helper', collection, query)
+    return db.findOne(database, collection, query)
   },
-  async authorize ({user, code, redirectUri}) {
+  async authorize ({code, redirectUri, appId, userRoomId, staffRoomId}) {
     // build body object
     const body = {
       grant_type: 'authorization_code',
@@ -112,9 +113,14 @@ module.exports = {
       // set created time in seconds
       const now = new Date()
       accessToken.created = Math.round(now.getTime() / 1000)
-      accessToken.user = user
       // store token in database
-      await db.insertOne('helper', collection, accessToken)
+      await db.insertOne(database, collection, {
+        personEmail,
+        personId,
+        appId,
+        rooms: [{userRoomId, staffRoomId}],
+        token: accessToken
+      })
       return
     } catch (e) {
       throw e
