@@ -3,6 +3,13 @@
 Dates are in YYYY-MM-DD format
 
 
+# 2.0.1 (2020-09-28)
+
+### Features
+
+* **Startup:** Add version number to service startup log
+
+
 # 2.0.0 (2020-09-28)
 
 ### Features
