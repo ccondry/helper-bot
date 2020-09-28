@@ -69,7 +69,7 @@ setInterval(async function () {
 }, throttle)
 
 module.exports = {
-  getAccessToken ({code, redirectUri}) {
+  async getAccessToken ({code, redirectUri}) {
     // build body object
     const body = {
       grant_type: 'authorization_code',
@@ -81,20 +81,24 @@ module.exports = {
     // encode the body for x-www-form-urlencoded
     const encodedBody = urlEncode(body)
     // get the token from webex
-    const accessToken = await fetch('https://webexapis.com/v1/access_token', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Accept: 'application/json'
-      },
-      body: encodedBody
-    })
-    // set created time in seconds
-    const now = new Date()
-    accessToken.created = Math.round(now.getTime() / 1000)
-    // store token in cache
-    cache[req.body.user] = accessToken
-    return
+    try {
+      const accessToken = await fetch('https://webexapis.com/v1/access_token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Accept: 'application/json'
+        },
+        body: encodedBody
+      })
+      // set created time in seconds
+      const now = new Date()
+      accessToken.created = Math.round(now.getTime() / 1000)
+      // store token in cache
+      cache[req.body.user] = accessToken
+      return
+    } catch (e) {
+      throw e
+    }
   },
   refreshToken (refreshToken) {
     const body = {
