@@ -3,6 +3,13 @@
 Dates are in YYYY-MM-DD format
 
 
+# 2.1.0 (2020-09-28)
+
+### Features
+
+* **Webhook:** Validate webhook signature on webhooks
+
+
 # 2.0.1 (2020-09-28)
 
 ### Features
