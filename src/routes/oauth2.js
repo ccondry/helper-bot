@@ -5,7 +5,7 @@ const model = require('../models/oauth2')
 // save client access code
 router.post('/', async (req, res, next) => {
   try {
-    const existing = await model.getUserToken({user: req.body.user})
+    const existing = await model.getAccessToken({user: req.body.user})
     if (existing) {
       return res.status(200).send({message: 'Your access token already exists and is valid.'})
     }
