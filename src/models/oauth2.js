@@ -18,55 +18,64 @@ async function interval () {
   const users = await db.find(database, collection)
   for (const user of users) {
     const token = user.token
-    // expiring soon?
-    const now = new Date()
-    const nowSeconds = Math.round(now.getTime() / 1000)
-    // number of seconds before refresh expires when we should perform refresh
-    const refreshBefore = Math.round(token.expires_in / 14)
-    // time after which refresh should be done
-    const refreshTime = token.created + token.expires_in - refreshBefore
-    // refresh?
-    if (nowSeconds > refreshTime) {
-      // it is refresh time
-      console.log(`token for ${user.personEmail} needs to be refreshed. refreshing now...`)
-      // refesh the token with webex APIs
-      let newToken
-      try {
-        newToken = await model.refreshToken(token.refresh_token)
-        console.log(`token for ${user.personEmail} refreshed successfully:`, newToken)
-      } catch (e) {
-        console.log(`token for ${user.personEmail} failed to refresh:`, e.message)
-        return
+    // continue to next user if this user has no token defined
+    if (!token) {
+      continue
+    }
+    try {
+      // expiring soon?
+      const now = new Date()
+      const nowSeconds = Math.round(now.getTime() / 1000)
+      // number of seconds before refresh expires when we should perform refresh
+      const refreshBefore = Math.round(token.expires_in / 14)
+      // time after which refresh should be done
+      const refreshTime = token.created + token.expires_in - refreshBefore
+      // refresh?
+      if (nowSeconds > refreshTime) {
+        // it is refresh time
+        console.log(`token for ${user.personEmail} needs to be refreshed. refreshing now...`)
+        // refesh the token with webex APIs
+        let newToken
+        try {
+          newToken = await model.refreshToken(token.refresh_token)
+          console.log(`token for ${user.personEmail} refreshed successfully:`, newToken)
+        } catch (e) {
+          console.log(`token for ${user.personEmail} failed to refresh:`, e.message)
+          return
+        }
+        // update database with new token details
+        try {
+          const query = {_id: db.ObjectId(user._id)}
+          newToken.created = Math.round(now.getTime() / 1000)
+          const updates = {$set: {token: newToken}}
+          await db.updateOne(database, collection, query, updates)
+        } catch (e) {
+          console.log(`token for ${user.personEmail} failed to refresh:`, e.message)
+          return
+        }
+      } else {
+        // // it is not refresh time yet
+        // // how many seconds before we need to refresh
+        // const secondsLeft = refreshTime - nowSeconds
+        // // minutes before we need to refresh
+        // let minutes = Math.round(secondsLeft / 60)
+        // if (minutes > 60) {
+        //   let hours = Math.floor(minutes / 60)
+        //   minutes = minutes % 60
+        //   if (hours > 24) {
+        //     const days = Math.floor(hours / 24)
+        //     hours = hours % 60
+        //     console.log(`token for ${user.personEmail} does not need to be refreshed yet. It will in ${days} days, ${hours} hours, and ${minutes} minutes`)
+        //   } else {
+        //     console.log(`token for ${user.personEmail} does not need to be refreshed yet. It will in ${hours} hours and ${minutes} minutes`)
+        //   }
+        // } else {
+        //   console.log(`token for ${user.personEmail} does not need to be refreshed yet. It will in ${minutes} minutes`)
+        // }
       }
-      // update database with new token details
-      try {
-        const query = {_id: db.ObjectId(user._id)}
-        newToken.created = Math.round(now.getTime() / 1000)
-        const updates = {$set: {token: newToken}}
-        await db.updateOne(database, collection, query, updates)
-      } catch (e) {
-        console.log(`token for ${user.personEmail} failed to refresh:`, e.message)
-        return
-      }
-    } else {
-      // // it is not refresh time yet
-      // // how many seconds before we need to refresh
-      // const secondsLeft = refreshTime - nowSeconds
-      // // minutes before we need to refresh
-      // let minutes = Math.round(secondsLeft / 60)
-      // if (minutes > 60) {
-      //   let hours = Math.floor(minutes / 60)
-      //   minutes = minutes % 60
-      //   if (hours > 24) {
-      //     const days = Math.floor(hours / 24)
-      //     hours = hours % 60
-      //     console.log(`token for ${user.personEmail} does not need to be refreshed yet. It will in ${days} days, ${hours} hours, and ${minutes} minutes`)
-      //   } else {
-      //     console.log(`token for ${user.personEmail} does not need to be refreshed yet. It will in ${hours} hours and ${minutes} minutes`)
-      //   }
-      // } else {
-      //   console.log(`token for ${user.personEmail} does not need to be refreshed yet. It will in ${minutes} minutes`)
-      // }
+    } catch (e) {
+      console.log('failed checking/updating token for user', user.personEmail, ':', e.message)
+      continue
     }
   }
 }
