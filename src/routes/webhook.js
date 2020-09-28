@@ -12,7 +12,7 @@ router.post('/*', async (req, res, next) => {
       const user = await oauth2.getUser({appId: req.body.appId})
       // and get the actual message content
       const message = await webex(user.token.access_token).messages.get(req.body.data.id)
-      console.log('retrieved message for', user.personEmail, ':', message)
+      // console.log('retrieved message for', user.personEmail, ':', message)
       if (req.body.data.roomType === 'group') {
         // room message
         const userRoom = user.rooms.find(v => v.userRoomId === message.roomId)
