@@ -91,7 +91,7 @@ module.exports = {
   async getUser (query) {
     return db.findOne(database, collection, query)
   },
-  async authorize ({code, redirectUri, appId, userRoomId, staffRoomId}) {
+  async authorize ({code, redirectUri, userRoomId, staffRoomId}) {
     // build body object
     const body = {
       grant_type: 'authorization_code',
@@ -118,10 +118,13 @@ module.exports = {
       // get user data associated with this access token
       const me = await webex(accessToken.access_token).people.get('me')
       // store user and token in database
-      await db.insertOne(database, collection, {
+      await db.upsert(database, collection, {personEmail: me.emails[0]}, {
         personEmail: me.emails[0],
         personId: me.id,
-        appId,
+        displayName: me.displayName,
+        nickName: me.nickName,
+        firstName: me.firstName,
+        lastName: me.lastName,
         rooms: [{userRoomId, staffRoomId}],
         token: accessToken
       })

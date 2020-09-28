@@ -9,7 +9,6 @@ router.post('/', async (req, res, next) => {
     await model.authorize({
       code: req.body.code,
       redirectUri: req.headers.referer.split('?')[0],
-      appId: req.body.appId,
       userRoomId: req.body.userRoomId,
       staffRoomId: req.body.staffRoomId
     })
