@@ -7,9 +7,6 @@ const cache = {}
 // wait time in seconds between checking all tokens for refresh timer
 const throttle = 5 * 1000
 
-// number of seconds before refresh expires when we should perform refresh
-const refreshBefore = 60 * 60 * 24
-
 setInterval(async function () {
   const keys = Object.keys(cache)
   for (const key of keys) {
@@ -17,6 +14,8 @@ setInterval(async function () {
     // expiring soon?
     const now = new Date()
     const nowSeconds = Math.round(now.getTime() / 1000)
+    // number of seconds before refresh expires when we should perform refresh
+    const refreshBefore = Math.round(value.expires_in / 14)
     // time after which refresh should be done
     const refreshTime = value.created + value.expires_in - refreshBefore
     // refresh?
