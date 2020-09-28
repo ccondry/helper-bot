@@ -1,6 +1,6 @@
 const fetch = require('./fetch')
 const db = require('./db')
-const collection ='oauth2.token'
+const collection = 'oauth2.token'
 
 // wait time in milliseconds between checking all tokens
 const throttle = 20 * 1000
