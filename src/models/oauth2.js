@@ -2,26 +2,16 @@ const fetch = require('./fetch')
 const db = require('./db')
 const collection ='oauth2.token'
 
-// convert JSON object to url encoded string
-const urlEncode = function (params) {
-  const keys = Object.keys(params)
-  let ret = ''
-  for (let i = 0; i < keys.length; i++) {
-    const key = keys[i]
-    const value = params[key]
-    if (i !== 0) {
-      // not first one
-      ret += '&'
-    }
-    ret += `${key}=${value}`
-  }
-  return ret
-}
-
 // wait time in milliseconds between checking all tokens
 const throttle = 20 * 1000
 
-setInterval(async function () {
+// run now
+interval()
+
+// run every interval
+setInterval(interval, throttle)
+
+async function interval () {
   const tokens = await db.find('helper', collection)
   for (const token of tokens) {
     // expiring soon?
@@ -75,7 +65,23 @@ setInterval(async function () {
       }
     }
   }
-}, throttle)
+}
+
+// convert JSON object to url encoded string
+const urlEncode = function (params) {
+  const keys = Object.keys(params)
+  let ret = ''
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i]
+    const value = params[key]
+    if (i !== 0) {
+      // not first one
+      ret += '&'
+    }
+    ret += `${key}=${value}`
+  }
+  return ret
+}
 
 module.exports = {
   async getAccessToken (query) {
