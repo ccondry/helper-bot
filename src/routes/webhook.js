@@ -14,7 +14,7 @@ router.post('/*', async (req, res, next) => {
       const user = await oauth2.getUser({personId: req.body.createdBy})
       // ignore messages from this user
       if (req.body.createdBy === req.body.data.personId) {
-        return res.status(200).send()
+        return res.status(200).send({})
       }
       // get the actual message content
       const message = await webex(user.token.access_token).messages.get(req.body.data.id)
@@ -52,10 +52,10 @@ router.post('/*', async (req, res, next) => {
         // direct message
       }
     }
-    return res.status(200).send()
+    return res.status(200).send({})
   } catch (e) {
     console.log(`Failed to handle webex webhook:`, e.message)
-    return res.status(500).send(e.message)
+    return res.status(500).send({message: e.message})
   }
 })
 

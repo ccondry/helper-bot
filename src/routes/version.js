@@ -8,7 +8,7 @@ router.get('/', async (req, res, next) => {
     return res.status(200).send({version: pkg.version})
   } catch (e) {
     console.log(`Failed to get server info:`, e.message)
-    return res.status(500).send(e.message)
+    return res.status(500).send({message: e.message})
   }
 })
 
