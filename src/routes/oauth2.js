@@ -4,7 +4,7 @@ const model = require('../models/oauth2')
 
 const cache = {}
 
-// wait time in seconds between checking all tokens for refresh timer
+// wait time in seconds between checking all tokens
 const throttle = 5 * 1000
 
 setInterval(async function () {
