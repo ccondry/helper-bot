@@ -7,7 +7,7 @@ const oauth2 = require('../models/oauth2')
 router.post('/*', async (req, res, next) => {
   try {
     // just log for now
-    console.log(req.headers, req.body)
+    // console.log(req.headers, req.body)
     // new messages
     if (req.body.resource === 'messages' && req.body.event === 'created') {
       const accessToken = oauth2.getAccessToken({user: 'cotycondry@gmail.com'})
