@@ -10,10 +10,9 @@ const crypto = require('crypto')
 router.post('/*', async (req, res, next) => {
   try {
     // validate secret
+    console.log('headers', req.headers)
     const signature = req.headers['X-Spark-Signature']
     console.log('header signature:', signature)
-    const secret = process.env.WEBHOOK_SECRET
-    console.log('secret', secret)
     // hash the request body with sha1 using our secret
     const hash = crypto.createHmac('sha1', process.env.WEBHOOK_SECRET)
     .update(JSON.stringify(req.body))
