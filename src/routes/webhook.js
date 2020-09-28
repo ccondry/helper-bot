@@ -19,13 +19,13 @@ router.post('/*', async (req, res, next) => {
         const staffRoom = user.rooms.find(v => v.staffRoomId === message.roomId)
         if (userRoom) {
           // message from user in users room
-          await webex(user.token.access_token).messages.send({
+          await webex(user.token.access_token).messages.create({
             roomId: userRoom.staffRoomId,
             text: `${message.personEmail} said ${message.text}`
           })
         } else if (staffRoom) {
           // message from staff in staff room
-          await webex(user.token.access_token).messages.send({
+          await webex(user.token.access_token).messages.create({
             roomId: staffRoom.userRoomId,
             text: message.text
           })
