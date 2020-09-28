@@ -37,7 +37,12 @@ router.post('/*', async (req, res, next) => {
           handleUserMessage(user, event, userRoomSet)
         } else if (staffRoomSet) {
           // message from staff in staff room
-          handleStaffMessage(user, event, staffRoomSet)
+          if (event.data.mentionedPeople && event.data.mentionedPeople.includes(user.personId)) {
+            // only handle staff messages that @ me
+            handleStaffMessage(user, event, staffRoomSet)
+          } else {
+            // ignore messages that do not @ me
+          }
           // await webex(user.token.access_token).messages.create({
           //   roomId: staffRoom.userRoomId,
           //   text: message.text
