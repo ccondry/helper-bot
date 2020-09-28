@@ -28,14 +28,14 @@ router.post('/*', async (req, res, next) => {
         // room message
         const userRoomSet = user.rooms.find(v => v.userRoomId === event.data.roomId)
         const staffRoomSet = user.rooms.find(v => v.staffRoomId === event.data.roomId)
-        if (userRoom) {
+        if (userRoomSet) {
           // message from user in users room
           // await webex(user.token.access_token).messages.create({
           //   roomId: userRoom.staffRoomId,
           //   text: `${message.personEmail} said ${message.text}`
           // })
           handleUserMessage(user, event, userRoomSet)
-        } else if (staffRoom) {
+        } else if (staffRoomSet) {
           // message from staff in staff room
           handleStaffMessage(user, event, staffRoomSet)
           // await webex(user.token.access_token).messages.create({
