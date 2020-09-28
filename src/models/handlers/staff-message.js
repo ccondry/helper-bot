@@ -36,7 +36,7 @@ module.exports = async function (user, event, rooms) {
   if (event.data.files && event.data.files.length) {
     try {
       // download file and get publicly-accessible link for the file
-      const fileUrl = await file.get(event.data.files[0])
+      const fileUrl = await file.get(event.data.files[0], user.token.access_token)
       // send file link in teams message
       data.files = fileUrl
     } catch (e) {

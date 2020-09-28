@@ -18,13 +18,13 @@ function getFilename (response) {
 }
 
 module.exports = {
-  async get (url) {
+  async get (url, token) {
     let response
     try {
       // get file
       const options = {
         headers: {
-          Authorization: 'Bearer ' + process.env.ACCESS_TOKEN
+          Authorization: 'Bearer ' + token
         }
       }
       response = await fetch(url, options)

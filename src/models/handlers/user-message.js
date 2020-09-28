@@ -36,7 +36,7 @@ module.exports = async function (user, event, rooms) {
   if (event.data.files && event.data.files.length) {
     // download file and get publicly-accessible link for the file
     try {
-      const fileUrl = await file.get(event.data.files[0])
+      const fileUrl = await file.get(event.data.files[0], user.token.access_token)
       // send file link in teams message
       data.files = fileUrl
       // did they send only files, no text? change the message sent to staff
