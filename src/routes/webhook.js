@@ -9,19 +9,20 @@ const crypto = require('crypto')
 // all webhook messages from webex
 router.post('/*', async (req, res, next) => {
   try {
+    console.log('new webhook:', req.body)
     // validate secret
     const signature = req.headers['x-spark-signature']
     // hash the request body with sha1 using our secret
     const hash = crypto.createHmac('sha1', process.env.WEBHOOK_SECRET)
     .update(JSON.stringify(req.body))
     .digest('hex')
-
+    
     if (signature !== hash) {
+      console.log('this webhook failed hash check:', req.body)
       return res.status(400).send({message: 'Invalid request signature in x-spark-signature'})
     }
     if (req.body.resource === 'messages' && req.body.event === 'created') {
       // new messages
-      console.log('new message', req.body)
       // find the related user
       const user = await oauth2.getUser({personId: req.body.createdBy})
       // ignore messages from this user
