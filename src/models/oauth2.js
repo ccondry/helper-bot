@@ -49,24 +49,24 @@ async function interval () {
         return
       }
     } else {
-      // it is not refresh time yet
-      // how many seconds before we need to refresh
-      const secondsLeft = refreshTime - nowSeconds
-      // minutes before we need to refresh
-      let minutes = Math.round(secondsLeft / 60)
-      if (minutes > 60) {
-        let hours = Math.floor(minutes / 60)
-        minutes = minutes % 60
-        if (hours > 24) {
-          const days = Math.floor(hours / 24)
-          hours = hours % 60
-          console.log(`token for ${user.personEmail} does not need to be refreshed yet. It will in ${days} days, ${hours} hours, and ${minutes} minutes`)
-        } else {
-          console.log(`token for ${user.personEmail} does not need to be refreshed yet. It will in ${hours} hours and ${minutes} minutes`)
-        }
-      } else {
-        console.log(`token for ${user.personEmail} does not need to be refreshed yet. It will in ${minutes} minutes`)
-      }
+      // // it is not refresh time yet
+      // // how many seconds before we need to refresh
+      // const secondsLeft = refreshTime - nowSeconds
+      // // minutes before we need to refresh
+      // let minutes = Math.round(secondsLeft / 60)
+      // if (minutes > 60) {
+      //   let hours = Math.floor(minutes / 60)
+      //   minutes = minutes % 60
+      //   if (hours > 24) {
+      //     const days = Math.floor(hours / 24)
+      //     hours = hours % 60
+      //     console.log(`token for ${user.personEmail} does not need to be refreshed yet. It will in ${days} days, ${hours} hours, and ${minutes} minutes`)
+      //   } else {
+      //     console.log(`token for ${user.personEmail} does not need to be refreshed yet. It will in ${hours} hours and ${minutes} minutes`)
+      //   }
+      // } else {
+      //   console.log(`token for ${user.personEmail} does not need to be refreshed yet. It will in ${minutes} minutes`)
+      // }
     }
   }
 }
