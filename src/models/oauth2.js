@@ -2,6 +2,7 @@ const fetch = require('./fetch')
 const db = require('./db')
 const webex = require('./webex')
 
+// database parameters
 const collection = 'user'
 const database = 'helper'
 
@@ -9,10 +10,10 @@ const database = 'helper'
 // this is 6 hours
 const throttle = 1000 * 60 * 60 * 6
 
-// run now
+// run token refresh check now
 interval()
 
-// run every interval
+// run token refresh check every throttle milliseconds
 setInterval(interval, throttle)
 
 async function interval () {
