@@ -3,6 +3,15 @@
 Dates are in YYYY-MM-DD format
 
 
+# 2.2.0 (2020-09-29)
+
+### Features
+
+* **Webhook:** Get webhook secret from mongo database on a per-user basis. This
+allows multiple users to be handled from the same webhook URL, each with
+different secrets.
+
+
 # 2.1.1 (2020-09-28)
 
 ### Features
