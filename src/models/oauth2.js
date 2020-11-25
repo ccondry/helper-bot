@@ -65,7 +65,7 @@ async function interval () {
         }
         // update database with new token details
         try {
-          const query = {_id: db.ObjectId(user._id)}
+          const query = {_id: db.ObjectID(user._id)}
           newToken.created = Math.round(now.getTime() / 1000)
           const updates = {$set: {token: newToken}}
           await db.updateOne(database, collection, query, updates)
