@@ -58,7 +58,7 @@ async function interval () {
         let newToken
         try {
           newToken = await refreshToken(token.refresh_token)
-          console.log(`token for ${user.personEmail} refreshed successfully:`, newToken)
+          console.log(`token for ${user.personEmail} refreshed successfully`)
         } catch (e) {
           console.log(`token for ${user.personEmail} failed to refresh:`, e.message)
           return
