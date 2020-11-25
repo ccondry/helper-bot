@@ -3,6 +3,13 @@
 Dates are in YYYY-MM-DD format
 
 
+# 2020.11.25
+
+### Bug Fixes
+
+* **Tokens:** Fix refresh token bug
+
+
 # 2.2.0 (2020-09-29)
 
 ### Features
