@@ -16,6 +16,24 @@ interval()
 // run token refresh check every throttle milliseconds
 setInterval(interval, throttle)
 
+async function refreshToken (refreshToken) {
+  const body = {
+    grant_type: 'refresh_token',
+    client_id: process.env.OAUTH_CLIENT_ID,
+    client_secret: process.env.OAUTH_CLIENT_SECRET,
+    refresh_token: refreshToken
+  }
+  const encodedBody = urlEncode(body)
+  return fetch('https://webexapis.com/v1/access_token', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      Accept: 'application/json'
+    },
+    body: encodedBody
+  })
+}
+
 async function interval () {
   const users = await db.find(database, collection)
   for (const user of users) {
@@ -39,7 +57,7 @@ async function interval () {
         // refesh the token with webex APIs
         let newToken
         try {
-          newToken = await model.refreshToken(token.refresh_token)
+          newToken = await refreshToken(token.refresh_token)
           console.log(`token for ${user.personEmail} refreshed successfully:`, newToken)
         } catch (e) {
           console.log(`token for ${user.personEmail} failed to refresh:`, e.message)
@@ -181,21 +199,5 @@ module.exports = {
       throw e
     }
   },
-  refreshToken (refreshToken) {
-    const body = {
-      grant_type: 'refresh_token',
-      client_id: process.env.OAUTH_CLIENT_ID,
-      client_secret: process.env.OAUTH_CLIENT_SECRET,
-      refresh_token: refreshToken
-    }
-    const encodedBody = urlEncode(body)
-    return fetch('https://webexapis.com/v1/access_token', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Accept: 'application/json'
-      },
-      body: encodedBody
-    })
-  }
+  refreshToken
 }
