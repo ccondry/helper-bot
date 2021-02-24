@@ -3,6 +3,13 @@
 Dates are in YYYY-MM-DD format
 
 
+# 2021.2.24
+
+### Features
+
+* **Tokens:** Change token refresh check from every 6 hours to every 1 hour.
+
+
 # 2020.11.25
 
 ### Bug Fixes
