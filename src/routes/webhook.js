@@ -39,7 +39,7 @@ router.post('/*', async (req, res, next) => {
   try {
     // get signature from webex
     const signature = req.headers['x-spark-signature']
-    // hash the request body with sha1 using the webook user's secret
+    // hash the request body with sha1 using the webhook user's secret
     const hash = crypto.createHmac('sha1', user.webhookSecret)
     .update(JSON.stringify(req.body))
     .digest('hex')

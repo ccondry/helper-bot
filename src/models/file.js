@@ -46,6 +46,7 @@ module.exports = {
       const path = `${folder}/${filename}`
       // const path = filename
       const fileUrl = `${process.env.FILE_URL}/${id}/${filename}`
+      // write the file to local filesystem
       const fileStream = fs.createWriteStream(path)
       await new Promise((resolve, reject) => {
         response.body.pipe(fileStream)
