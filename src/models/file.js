@@ -36,6 +36,7 @@ module.exports = {
       throw e
     }
     try {
+      console.log('file response', response)
       const filename = getFilename(response)
       // console.log('filename:', filename)
       const id = uuid.v4()
