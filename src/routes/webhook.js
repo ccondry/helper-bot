@@ -66,7 +66,7 @@ router.post('/*', async (req, res, next) => {
   }
 
   // get the message details for created or updated events (not deleted ones)
-  if (event.event !== 'created' || event.event === 'updated') {
+  if (event.event === 'created' || event.event === 'updated') {
     try {
       event.data = await webex(user.token.access_token).messages.get(event.data.id)
     } catch (e) {
