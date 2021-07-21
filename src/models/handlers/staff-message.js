@@ -6,6 +6,18 @@ const threads = require('../threads')
 const file = require('../file')
 
 module.exports = async function (user, event, rooms) {
+  // did the staff delete their message?
+  if (event.event === 'deleted') {
+    // console.log('deleted event data:', event.data)
+    const t = threads.find(v => v.staffThreadId === event.data.id)
+    // get the matching user room message
+    const userRoomMessage = await webex(user.token.access_token).messages.get(t.userThreadId)
+    // delete the matching message in the staff rooom
+    webex(user.token.access_token).messages.remove(userRoomMessage)
+    .catch(e => console.log('Failed to delete staff message from the user room:', e.message))
+    // done
+    return
+  }
   // parse the html output to nice markdown with the mention to this bot removed
   // and any emails turned into real mentions
   let markdown
