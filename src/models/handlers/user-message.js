@@ -2,6 +2,7 @@ const webex = require('../webex')
 const threads = require('../threads')
 const file = require('../file')
 // const me = require('../me')
+const fs = require('fs')
 
 module.exports = async function (user, event, rooms) {
   // remove @mention html tags
@@ -46,7 +47,9 @@ module.exports = async function (user, event, rooms) {
       } else {
         // file was an attachment. stream it to multipart webex message
         console.log('attaching file stream', fileData)
-        data.files = [fileData]
+        // data.files = [fileData]
+        const testStream = fs.createReadStream('/var/www/html/static/whatsapp-qr.png')
+        data.files = [testStream]
       }
       // did they send only files, no text? change the message sent to staff
       if (typeof text !== 'string' || text.length === 0) {
