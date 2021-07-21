@@ -10,6 +10,10 @@ module.exports = async function (user, event, rooms) {
   if (event.event === 'deleted') {
     // console.log('deleted event data:', event.data)
     const t = threads.find(v => v.staffThreadId === event.data.id)
+    if (!t) {
+      // we dont have a record of this thread. can't delete the message.
+      return
+    }
     // get the matching user room message
     const userRoomMessage = await webex(user.token.access_token).messages.get(t.userThreadId)
     // delete the matching message in the staff rooom
@@ -50,6 +54,10 @@ module.exports = async function (user, event, rooms) {
   if (event.event === 'updated') {
     // console.log('updated event data:', event.data)
     const t = threads.find(v => v.staffThreadId === event.data.id)
+    if (!t) {
+      // we dont have a record of this thread. can't update the message.
+      return
+    }
     // get the matching user room message
     const userRoomMessage = await webex(user.token.access_token).messages.get(t.userThreadId)
     // console.log('userRoomMessage:', userRoomMessage)
