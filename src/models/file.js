@@ -6,6 +6,7 @@ const uuid = require('uuid')
 function getFilename (response) {
   // get content disposition
   const disposition = response.headers.get('content-disposition')
+  console.log('file disposition', disposition)
   // find the attachment part
   const parts = disposition.split(';')
   const index = parts.findIndex(v => v.trim() === 'attachment')
@@ -37,6 +38,8 @@ module.exports = {
     }
     try {
       console.log('file response', response)
+      const json = await response.json()
+      console.log('file response json?', json)
       const filename = getFilename(response)
       // console.log('filename:', filename)
       const id = uuid.v4()

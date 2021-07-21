@@ -11,7 +11,7 @@ const pkg = require('../../package.json')
 router.post('/*', async (req, res, next) => {
   // copy request body
   const event = JSON.parse(JSON.stringify(req.body))
-  console.log('webhook event', event)
+  // console.log('webhook event', event)
   // ignore messages from self
   if (event.createdBy === event.data.personId) {
     return
