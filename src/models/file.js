@@ -37,9 +37,15 @@ module.exports = {
       throw e
     }
     try {
-      console.log('file response', response)
-      const json = await response.json()
-      console.log('file response json?', json)
+      console.log('file response status', response.status)
+      console.log('file response statusText', response.statusText)
+      console.log('file response ok', response.ok)
+      console.log('file response headers', response.headers)
+      console.log('file response redirected', response.redirected)
+      console.log('file response type', response.type)
+      console.log('file response url', response.url)
+      // const json = await response.json()
+      // console.log('file response json?', json)
       const filename = getFilename(response)
       // console.log('filename:', filename)
       const id = uuid.v4()
