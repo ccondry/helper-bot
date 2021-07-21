@@ -39,15 +39,8 @@ module.exports = async function (user, event, rooms) {
     // download file and get publicly-accessible link for the file
     try {
       const fileData = await file.get(file1, user.token.access_token)
-      if (typeof fileData === 'string') {
-        console.log('sending file URL', fileData)
-        // send file link in teams message
-        data.files = [fileData]
-      } else {
-        // file was an attachment. stream it to multipart webex message
-        console.log('attaching file stream', fileData)
-        data.files = [fileData]
-      }
+      // send file link or ReadStream in teams message
+      data.files = [fileData]
       // did they send only files, no text? change the message sent to staff
       if (typeof text !== 'string' || text.length === 0) {
         data.text = `${event.data.personEmail} sent this file`
