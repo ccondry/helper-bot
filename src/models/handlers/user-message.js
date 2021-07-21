@@ -1,6 +1,7 @@
 const webex = require('../webex')
 const threads = require('../threads')
 const file = require('../file')
+const fetch = require('../fetch')
 // const me = require('../me')
 // const fs = require('fs')
 // const stream = require('stream')
@@ -25,9 +26,24 @@ module.exports = async function (user, event, rooms) {
     const t = threads.find(v => v.userThreadId === event.data.id)
     // get the matching staff message
     const staffRoomMessage = await webex(user.token.access_token).messages.get(t.staffThreadId)
+    console.log('staffRoomMessage:', staffRoomMessage)
     // update the matching message in the staff rooom
-    webex(user.token.access_token).messages.update(staffRoomMessage)
-    .catch(e => console.log('Failed to update user message in the staff room:', e.message))
+    const url = 'https://webexapis.com/v1/messages/' + staffRoomMessage.id 
+    const options = {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + user.token.access_token
+      },
+      body: JSON.stringify({
+        roomId: staffRoomMessage.id,
+        text: staffRoomMessage.text,
+        markdown: staffRoomMessage.markdown
+      })
+    }
+    fetch(url, options).catch(e => {
+      console.log('Failed to update user message in the staff room:', e.message)
+    })
+    
     // done
     return
   }
