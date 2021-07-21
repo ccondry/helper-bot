@@ -1,7 +1,7 @@
 const fetch = require('node-fetch')
-const fs = require('fs')
-const fsp = fs.promises
-const uuid = require('uuid')
+// const fs = require('fs')
+// const fsp = fs.promises
+// const uuid = require('uuid')
 
 function getFilename (response) {
   // get content disposition
@@ -48,12 +48,14 @@ module.exports = {
 
         return response.url
       } else {
-        const filename = getFilename(response)
-        console.log('filename:', filename)
-        return {
-          body: response.body,
-          filename
-        }
+        // return the response body stream
+        return response.body
+        // const filename = getFilename(response)
+        // console.log('filename:', filename)
+        // return {
+        //   body: response.body,
+        //   filename
+        // }
       }
     } catch (e) {
       console.log('failed to upload/write file:', e.message)
