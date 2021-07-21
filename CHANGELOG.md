@@ -3,6 +3,14 @@
 Dates are in YYYY-MM-DD format
 
 
+# 2021.7.21
+
+### Features
+
+* **Messages:** Add support for GIFs, editing messages, and deleting messages.
+Improved file attachment handling.
+
+
 # 2021.2.24
 
 ### Features
