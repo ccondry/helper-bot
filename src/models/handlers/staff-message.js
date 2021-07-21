@@ -42,7 +42,7 @@ module.exports = async function (user, event, rooms) {
       if (typeof fileData === 'string') {
         console.log('sending file URL', fileData)
         // send file link in teams message
-        data.files = fileData
+        data.files = [fileData]
       } else {
         // file was an attachment. stream it to multipart webex message
         console.log('do multipart message attachment here')
