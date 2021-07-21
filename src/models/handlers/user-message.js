@@ -1,5 +1,6 @@
 const webex = require('../webex')
 const threads = require('../threads')
+const messages = require('../messages')
 const file = require('../file')
 const fetch = require('../fetch')
 // const me = require('../me')
@@ -10,13 +11,13 @@ module.exports = async function (user, event, rooms) {
   // did the user delete their message?
   if (event.event === 'deleted') {
     // console.log('deleted event data:', event.data)
-    const t = threads.find(v => v.userThreadId === event.data.id)
-    if (!t) {
+    const message = messages.find(v => v.userMessageId === event.data.id)
+    if (!message) {
       // we dont have a record of this thread. can't delete the message.
       return
     }
     // get the matching staff room message
-    const staffRoomMessage = await webex(user.token.access_token).messages.get(t.staffThreadId)
+    const staffRoomMessage = await webex(user.token.access_token).messages.get(message.staffMessageId)
     // delete the matching message in the staff rooom
     webex(user.token.access_token).messages.remove(staffRoomMessage)
     .catch(e => console.log('Failed to delete user message from the staff room:', e.message))
@@ -60,13 +61,13 @@ module.exports = async function (user, event, rooms) {
   // did the user update their message?
   if (event.event === 'updated') {
     // console.log('updated event data:', event.data)
-    const t = threads.find(v => v.userThreadId === event.data.id)
+    const t = messages.find(v => v.userMessageId === event.data.id)
     if (!t) {
-      // we dont have a record of this thread. can't update the message.
+      // we dont have a record of this message pair. can't update the message.
       return
     }
     // get the matching staff message
-    const staffRoomMessage = await webex(user.token.access_token).messages.get(t.staffThreadId)
+    const staffRoomMessage = await webex(user.token.access_token).messages.get(t.staffMessageId)
     // console.log('staffRoomMessage:', staffRoomMessage)
     // update the matching message in the staff rooom
     const url = 'https://webexapis.com/v1/messages/' + staffRoomMessage.id 
@@ -116,6 +117,11 @@ module.exports = async function (user, event, rooms) {
   // send message to staff room
   try {
     const response = await webex(user.token.access_token).messages.create(data)
+    // save message ID pair in cache
+    messages.push({
+      userMessageId: event.data.id,
+      staffMessageId: response.id
+    })
     // save thread if it doesn't exist yet
     if (!thread) {
       // thread parent ID for user room
