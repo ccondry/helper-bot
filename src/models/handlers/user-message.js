@@ -37,8 +37,8 @@ module.exports = async function (user, event, rooms) {
       },
       body: JSON.stringify({
         roomId: staffRoomMessage.roomId,
-        text: staffRoomMessage.text,
-        markdown: staffRoomMessage.markdown
+        text: event.data.text,
+        markdown: event.data.markdown
       })
     }
     fetch(url, options).catch(e => {
