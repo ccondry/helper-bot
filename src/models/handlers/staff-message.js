@@ -54,7 +54,7 @@ module.exports = async function (user, event, rooms) {
 
   // did the staff update their message?
   if (event.event === 'updated') {
-    console.log('updated event data:', event.data)
+    // console.log('updated event data:', event.data)
     const message = messages.find(v => v.staffMessageId === event.data.id)
     if (!message) {
       console.log('didnt find matching user message from staff. threads:', messages)
