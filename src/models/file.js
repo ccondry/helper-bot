@@ -37,35 +37,24 @@ module.exports = {
       throw e
     }
     try {
-      console.log('file response status', response.status)
-      console.log('file response statusText', response.statusText)
-      console.log('file response ok', response.ok)
-      console.log('file response headers', response.headers)
+      // did we get redirected to another place, like for a GIF?
       console.log('file response redirected', response.redirected)
-      console.log('file response type', response.type)
-      console.log('file response url', response.url)
-      // const json = await response.json()
-      // console.log('file response json?', json)
-      const filename = getFilename(response)
-      // console.log('filename:', filename)
-      const id = uuid.v4()
-      const folder = `${process.env.FILE_PATH}/${id}`
-      // create the folder
-      await fsp.mkdir(folder)
-      // build full file path
-      const path = `${folder}/${filename}`
-      // const path = filename
-      const fileUrl = `${process.env.FILE_URL}/${id}/${filename}`
-      // write the file to local filesystem
-      const fileStream = fs.createWriteStream(path)
-      await new Promise((resolve, reject) => {
-        response.body.pipe(fileStream)
-        response.body.on('error', reject)
-        fileStream.on('finish', resolve)
-      })
-      // console.log('wrote file', path)
-      // console.log('file url is', fileUrl)
-      return fileUrl
+      if (response.redirected) {
+        // get redirect url
+        // console.log('file response url', response.url)
+        
+        // get content type
+        // console.log('file response content type', response.headers['content-type'])
+
+        return response.url
+      } else {
+        const filename = getFilename(response)
+        console.log('filename:', filename)
+        return {
+          body: response.body,
+          filename
+        }
+      }
     } catch (e) {
       console.log('failed to upload/write file:', e.message)
       throw Error('Failed to upload file attachment')
