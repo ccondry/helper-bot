@@ -2,6 +2,7 @@ const fetch = require('node-fetch')
 // const fs = require('fs')
 // const fsp = fs.promises
 // const uuid = require('uuid')
+const stream = require('stream')
 
 // function getFilename (response) {
 //   // get content disposition
@@ -49,8 +50,8 @@ module.exports = {
         return response.url
       } else {
         console.log('get webex file attachment response headers:', response.headers)
-        console.log('response.body instanceof ReadableStream', response.body instanceof ReadableStream)
-        console.log('response.body instanceof Stream', response.body instanceof Stream)
+        console.log('response.body instanceof ReadableStream', response.body instanceof stream.ReadableStream)
+        console.log('response.body instanceof Stream', response.body instanceof stream.Stream)
         // return the response body stream
         return response.body
         // const filename = getFilename(response)
