@@ -46,7 +46,7 @@ module.exports = async function (user, event, rooms) {
       } else {
         // file was an attachment. stream it to multipart webex message
         console.log('attaching file stream', fileData)
-        data.files = [fileData]
+        data.files = [fileData.createReadStream()]
       }
       // did they send only files, no text? change the message sent to staff
       if (typeof text !== 'string' || text.length === 0) {
