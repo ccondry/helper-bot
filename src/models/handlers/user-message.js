@@ -20,36 +20,6 @@ module.exports = async function (user, event, rooms) {
     return
   }
   
-  // did the user update their message?
-  if (event.event === 'updated') {
-    console.log('updated event data:', event.data)
-    const t = threads.find(v => v.userThreadId === event.data.id)
-    // get the matching staff message
-    const staffRoomMessage = await webex(user.token.access_token).messages.get(t.staffThreadId)
-    console.log('staffRoomMessage:', staffRoomMessage)
-    // update the matching message in the staff rooom
-    const url = 'https://webexapis.com/v1/messages/' + staffRoomMessage.id 
-    const options = {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + user.token.access_token
-      },
-      body: JSON.stringify({
-        roomId: staffRoomMessage.roomId,
-        text: event.data.text,
-        markdown: event.data.markdown
-      })
-    }
-    fetch(url, options).catch(e => {
-      console.log('Failed to update user message in the staff room:', e.message)
-    })
-    
-    // done
-    return
-  }
-
-
   // remove @mention html tags
   let html
   try {
@@ -82,7 +52,36 @@ module.exports = async function (user, event, rooms) {
   if (typeof html === 'string' && typeof text === 'string' && html.length > text.length + 8) {
     data.markdown = `${event.data.personEmail} said ${html}`
   }
-  
+
+  // did the user update their message?
+  if (event.event === 'updated') {
+    console.log('updated event data:', event.data)
+    const t = threads.find(v => v.userThreadId === event.data.id)
+    // get the matching staff message
+    const staffRoomMessage = await webex(user.token.access_token).messages.get(t.staffThreadId)
+    console.log('staffRoomMessage:', staffRoomMessage)
+    // update the matching message in the staff rooom
+    const url = 'https://webexapis.com/v1/messages/' + staffRoomMessage.id 
+    const options = {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + user.token.access_token
+      },
+      body: JSON.stringify({
+        roomId: staffRoomMessage.roomId,
+        text: data.text,
+        markdown: data.markdown
+      })
+    }
+    fetch(url, options).catch(e => {
+      console.log('Failed to update user message in the staff room:', e.message)
+    })
+    
+    // done
+    return
+  }
+
   // forward the first attached file, if any
   if (Array.isArray(event.data.files) && event.data.files.length) {
     // remove the first file from event data and get the file data
