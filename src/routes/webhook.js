@@ -9,10 +9,10 @@ const pkg = require('../../package.json')
 
 // all webhook messages from webex
 router.post('/*', async (req, res, next) => {
-  console.log('webhook headers', req.headers)
+  // console.log('webhook headers', req.headers)
   // copy request body
   const event = JSON.parse(JSON.stringify(req.body))
-  console.log('webhook event', event)
+  // console.log('webhook event', event)
   // ignore messages from self
   if (event.createdBy === event.data.personId) {
     return
