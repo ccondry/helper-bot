@@ -49,7 +49,7 @@ module.exports = async function (user, event, rooms) {
   // did the staff update their message?
   if (event.event === 'updated') {
     // console.log('updated event data:', event.data)
-    const t = threads.find(v => v.userThreadId === event.data.id)
+    const t = threads.find(v => v.staffThreadId === event.data.id)
     // get the matching user room message
     const userRoomMessage = await webex(user.token.access_token).messages.get(t.userThreadId)
     // console.log('userRoomMessage:', userRoomMessage)
