@@ -7,7 +7,7 @@ const file = require('../file')
 
 module.exports = async function (user, event, rooms) {
   // did the user delete their message?
-  if (event.event === 'deleted' && parentId) {
+  if (event.event === 'deleted') {
     console.log('deleted event data:', event.data)
     const t = threads.find(v => v.userThreadId === event.data.id)
     // get the matching staff message
