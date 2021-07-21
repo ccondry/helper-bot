@@ -65,14 +65,16 @@ router.post('/*', async (req, res, next) => {
     return
   }
 
-  // get the message details
-  try {
-    event.data = await webex(user.token.access_token).messages.get(event.data.id)
-  } catch (e) {
-    // failed to get message details
-    const message = `webhook failed to get message details: ${e.message}`
-    console.log(pkg.name, pkg.version, message)
-    return
+  // get the message details for created or updated events (not deleted ones)
+  if (event.event !== 'created' || event.event === 'updated') {
+    try {
+      event.data = await webex(user.token.access_token).messages.get(event.data.id)
+    } catch (e) {
+      // failed to get message details
+      const message = `webhook failed to get message details: ${e.message}`
+      console.log(pkg.name, pkg.version, message)
+      return
+    }
   }
     
   // if the message was a direct 1-1 message
