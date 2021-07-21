@@ -30,6 +30,7 @@ module.exports = async function (user, event, rooms) {
     // update the matching message in the staff rooom
     const url = 'https://webexapis.com/v1/messages/' + staffRoomMessage.id 
     const options = {
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + user.token.access_token
