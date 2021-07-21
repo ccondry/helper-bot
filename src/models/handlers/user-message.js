@@ -8,9 +8,12 @@ const file = require('../file')
 module.exports = async function (user, event, rooms) {
   // did the user delete their message?
   if (event.event === 'deleted' && parentId) {
+    console.log('deleted event data:', event.data)
     const t = threads.find(v => v.userThreadId === event.data.id)
+    // get the matching staff message
+    const staffMessage = await webex(user.token.access_token).messages.get(t.staffThreadId)
     // delete the matching message in the staff rooom
-    webex(user.token.access_token).messages.remove(t.staffThreadId)
+    webex(user.token.access_token).messages.remove(staffMessage)
     .catch(e => console.log('Failed to delete user room message from the staff room:', e.message))
     // done
     return
