@@ -18,19 +18,6 @@ module.exports = async function (user, event, rooms) {
     // done
     return
   }
-  
-  // did the staff update their message?
-  if (event.event === 'updated') {
-    console.log('updated event data:', event.data)
-    const t = threads.find(v => v.staffThreadId === event.data.id)
-    // get the matching user room message
-    const userRoomMessage = await webex(user.token.access_token).messages.get(t.userThreadId)
-    // update the matching message in the staff rooom
-    webex(user.token.access_token).messages.remove(userRoomMessage)
-    .catch(e => console.log('Failed to update staff message in the user room:', e.message))
-    // done
-    return
-  }
 
   // parse the html output to nice markdown with the mention to this bot removed
   // and any emails turned into real mentions
@@ -58,6 +45,37 @@ module.exports = async function (user, event, rooms) {
     // message from a thread - map to thread in staff room
     data.parentId = thread.userThreadId
   }
+
+  // did the staff update their message?
+  if (event.event === 'updated') {
+    // console.log('updated event data:', event.data)
+    const t = threads.find(v => v.userThreadId === event.data.id)
+    // get the matching user room message
+    const userRoomMessage = await webex(user.token.access_token).messages.get(t.userThreadId)
+    // console.log('userRoomMessage:', userRoomMessage)
+    // update the matching message in the user rooom
+    const url = 'https://webexapis.com/v1/messages/' + userRoomMessage.id 
+    const options = {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + user.token.access_token
+      },
+      body: JSON.stringify({
+        roomId: userRoomMessage.roomId,
+        text: data.text,
+        markdown: data.markdown
+      })
+    }
+    fetch(url, options).catch(e => {
+      console.log('Failed to update user message in the staff room:', e.message)
+    })
+    
+    // done
+    return
+  }
+
+
   // forward the first attached file, if any
   if (Array.isArray(event.data.files) && event.data.files.length) {
     // remove the first file from event data and get the file data
