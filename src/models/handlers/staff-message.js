@@ -4,6 +4,7 @@ const webex = require('../webex')
 const threads = require('../threads')
 // download file from webex and save locally. returns our public URL for file
 const file = require('../file')
+const fetch = require('../fetch')
 
 module.exports = async function (user, event, rooms) {
   // did the staff delete their message?
