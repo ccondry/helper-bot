@@ -36,7 +36,7 @@ module.exports = async function (user, event, rooms) {
         'Authorization': 'Bearer ' + user.token.access_token
       },
       body: JSON.stringify({
-        roomId: staffRoomMessage.id,
+        roomId: staffRoomMessage.roomId,
         text: staffRoomMessage.text,
         markdown: staffRoomMessage.markdown
       })
