@@ -49,6 +49,8 @@ module.exports = {
         return response.url
       } else {
         console.log('get webex file attachment response headers:', response.headers)
+        console.log('response.body instanceof ReadableStream', response.body instanceof ReadableStream)
+        console.log('response.body instanceof Stream', response.body instanceof Stream)
         // return the response body stream
         return response.body
         // const filename = getFilename(response)
