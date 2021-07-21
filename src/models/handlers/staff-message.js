@@ -18,6 +18,20 @@ module.exports = async function (user, event, rooms) {
     // done
     return
   }
+  
+  // did the staff update their message?
+  if (event.event === 'updated') {
+    console.log('updated event data:', event.data)
+    const t = threads.find(v => v.staffThreadId === event.data.id)
+    // get the matching user room message
+    const userRoomMessage = await webex(user.token.access_token).messages.get(t.userThreadId)
+    // update the matching message in the staff rooom
+    webex(user.token.access_token).messages.remove(userRoomMessage)
+    .catch(e => console.log('Failed to update staff message in the user room:', e.message))
+    // done
+    return
+  }
+
   // parse the html output to nice markdown with the mention to this bot removed
   // and any emails turned into real mentions
   let markdown

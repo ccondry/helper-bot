@@ -18,6 +18,21 @@ module.exports = async function (user, event, rooms) {
     // done
     return
   }
+  
+  // did the user update their message?
+  if (event.event === 'updated') {
+    console.log('updated event data:', event.data)
+    const t = threads.find(v => v.userThreadId === event.data.id)
+    // get the matching staff message
+    const staffRoomMessage = await webex(user.token.access_token).messages.get(t.staffThreadId)
+    // update the matching message in the staff rooom
+    webex(user.token.access_token).messages.update(staffRoomMessage)
+    .catch(e => console.log('Failed to update user message in the staff room:', e.message))
+    // done
+    return
+  }
+
+
   // remove @mention html tags
   let html
   try {
