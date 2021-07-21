@@ -60,70 +60,68 @@ router.post('/*', async (req, res, next) => {
   res.status(200).send({})
 
   // check resource and event type
-  if (event.resource === 'messages' && event.event === 'created') {
-    // messages.created
+  if (event.resource !== 'messages') {
+    // ignore non-messages
+    return
+  }
+
+  // get the message details
+  try {
+    event.data = await webex(user.token.access_token).messages.get(event.data.id)
+  } catch (e) {
+    // failed to get message details
+    const message = `webhook failed to get message details: ${e.message}`
+    console.log(pkg.name, pkg.version, message)
+    return
+  }
+    
+  // if the message was a direct 1-1 message
+  if (event.data.roomType !== 'group') {
+    // ignore it
+    return
+  }
+
+  // find the matching room set for this user
+  const userRoomSet = user.rooms.find(v => v.userRoomId === event.data.roomId)
+  if (userRoomSet) {
     try {
-      // get the message details
-      event.data = await webex(user.token.access_token).messages.get(event.data.id)
+      await handleUserMessage(user, event, userRoomSet)
+      // done
+      return
     } catch (e) {
-      // failed to get message details
-      const message = `webhook failed to get message details: ${e.message}`
+      // failed during handle user message
+      const message = `failed to handle webhook message to user room ${event.data.roomId}: ${e.message}`
       console.log(pkg.name, pkg.version, message)
       return
     }
-    
-    // was the message sent to a room or as a direct message?
-    if (event.data.roomType === 'group') {
-      // room message
-      // find the matching room set for this user
-      const userRoomSet = user.rooms.find(v => v.userRoomId === event.data.roomId)
-      if (userRoomSet) {
+  } else {
+    // message not sent to a user room
+    // was message sent to a staff room?
+    const staffRoomSet = user.rooms.find(v => v.staffRoomId === event.data.roomId)
+    if (staffRoomSet) {
+      // message is from staff in staff room
+      // did message mention this user?
+      if (Array.isArray(event.data.mentionedPeople) && event.data.mentionedPeople.includes(user.personId)) {
+        // only handle staff messages that @ me
         try {
-          await handleUserMessage(user, event, userRoomSet)
+          await handleStaffMessage(user, event, staffRoomSet)
           // done
           return
         } catch (e) {
-          // failed during handle user message
-          const message = `failed to handle webhook message to user room ${event.data.roomId}: ${e.message}`
+          // failed during handle staff message
+          const message = `failed to handle webhook message to staff room ${event.data.roomId}: ${e.message}`
           console.log(pkg.name, pkg.version, message)
           return
         }
       } else {
-        // message not sent to a user room
-        // was message sent to a staff room?
-        const staffRoomSet = user.rooms.find(v => v.staffRoomId === event.data.roomId)
-        if (staffRoomSet) {
-          // message is from staff in staff room
-          // did message mention this user?
-          if (Array.isArray(event.data.mentionedPeople) && event.data.mentionedPeople.includes(user.personId)) {
-            // only handle staff messages that @ me
-            try {
-              await handleStaffMessage(user, event, staffRoomSet)
-              // done
-              return
-            } catch (e) {
-              // failed during handle staff message
-              const message = `failed to handle webhook message to staff room ${event.data.roomId}: ${e.message}`
-              console.log(pkg.name, pkg.version, message)
-              return
-            }
-          } else {
-            // ignore messages that do not @ me
-            return
-          }
-        } else {
-          const message = `webhook room did not match any rooms for ${user.personEmail} (${user.personId})`
-          console.log(pkg.name, pkg.version, message)
-          return
-        }
+        // ignore messages that do not @ me
+        return
       }
     } else {
-      // direct message - ignore for now
+      const message = `webhook room did not match any rooms for ${user.personEmail} (${user.personId})`
+      console.log(pkg.name, pkg.version, message)
       return
     }
-  } else {
-    // resource.event is not messages.created - ignore for now
-    return
   }
 })
 

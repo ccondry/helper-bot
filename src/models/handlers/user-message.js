@@ -6,6 +6,15 @@ const file = require('../file')
 // const stream = require('stream')
 
 module.exports = async function (user, event, rooms) {
+  // did the user delete their message?
+  if (event.event === 'deleted' && parentId) {
+    const t = threads.find(v => v.userThreadId === event.data.id)
+    // delete the matching message in the staff rooom
+    webex(user.token.access_token).messages.remove(t.staffThreadId)
+    .catch(e => console.log('Failed to delete user room message from the staff room:', e.message))
+    // done
+    return
+  }
   // remove @mention html tags
   let html
   try {
@@ -20,20 +29,25 @@ module.exports = async function (user, event, rooms) {
   // const text = event.data.text.replace(botName, '').trim()
   const text = event.data.text
 
+  // find matching thread for this message
+  const thread = threads.find(v => v.userThreadId === event.data.parentId)
+  let parentId
+  if (thread) {
+    // message from a thread - map to thread in staff room
+    parentId = thread.staffThreadId
+  }
+
   // construct the message to forward to staff room
   const data = {
     roomId: rooms.staffRoomId,
-    text: `${event.data.personEmail} said ${text}`
+    text: `${event.data.personEmail} said ${text}`,
+    parentId
   }
   // only send markdown if html has more than <p> formatting
   if (typeof html === 'string' && typeof text === 'string' && html.length > text.length + 8) {
     data.markdown = `${event.data.personEmail} said ${html}`
   }
-  const thread = threads.find(v => v.userThreadId === event.data.parentId)
-  if (thread) {
-    // message from a thread - map to thread in staff room
-    data.parentId = thread.staffThreadId
-  }
+  
   // forward the first attached file, if any
   if (Array.isArray(event.data.files) && event.data.files.length) {
     // remove the first file from event data and get the file data
