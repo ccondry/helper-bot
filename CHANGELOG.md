@@ -3,6 +3,14 @@
 Dates are in YYYY-MM-DD format
 
 
+# 2021.7.21-1
+
+### Features
+
+* **Messages:** Send new message if update operation finds no matching message
+in the paired room.
+
+
 # 2021.7.21
 
 ### Features
