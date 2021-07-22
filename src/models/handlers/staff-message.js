@@ -56,36 +56,32 @@ module.exports = async function (user, event, rooms) {
   if (event.event === 'updated') {
     // console.log('updated event data:', event.data)
     const message = messages.find(v => v.staffMessageId === event.data.id)
-    if (!message) {
-      console.log('didnt find matching user message from staff. threads:', messages)
-      // we dont have a record of this thread. can't update the message.
+    if (message) {
+      // get the matching user room message
+      const userRoomMessage = await webex(user.token.access_token).messages.get(message.userMessageId)
+      // console.log('userRoomMessage:', userRoomMessage)
+      // update the matching message in the user rooom
+      const url = 'https://webexapis.com/v1/messages/' + userRoomMessage.id 
+      const options = {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + user.token.access_token
+        },
+        body: JSON.stringify({
+          roomId: userRoomMessage.roomId,
+          text: data.text,
+          markdown: data.markdown
+        })
+      }
+      fetch(url, options).catch(e => {
+        console.log('Failed to update user message in the staff room:', e.message)
+      })
+      
+      // done
       return
     }
-    // get the matching user room message
-    const userRoomMessage = await webex(user.token.access_token).messages.get(message.userMessageId)
-    // console.log('userRoomMessage:', userRoomMessage)
-    // update the matching message in the user rooom
-    const url = 'https://webexapis.com/v1/messages/' + userRoomMessage.id 
-    const options = {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + user.token.access_token
-      },
-      body: JSON.stringify({
-        roomId: userRoomMessage.roomId,
-        text: data.text,
-        markdown: data.markdown
-      })
-    }
-    fetch(url, options).catch(e => {
-      console.log('Failed to update user message in the staff room:', e.message)
-    })
-    
-    // done
-    return
   }
-
 
   // forward the first attached file, if any
   if (Array.isArray(event.data.files) && event.data.files.length) {
@@ -97,7 +93,7 @@ module.exports = async function (user, event, rooms) {
       // send file link or ReadStream in teams message
       data.files = [fileData]
       // did they send only files, no text? change the message sent to staff
-      if (typeof text !== 'string' || text.length === 0) {
+      if (typeof data.text !== 'string' || data.text.length === 0) {
         data.text = `${event.data.personEmail} sent this file`
         delete data.markdown
       }

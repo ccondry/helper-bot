@@ -61,34 +61,32 @@ module.exports = async function (user, event, rooms) {
   // did the user update their message?
   if (event.event === 'updated') {
     // console.log('updated event data:', event.data)
-    const t = messages.find(v => v.userMessageId === event.data.id)
-    if (!t) {
-      // we dont have a record of this message pair. can't update the message.
+    const message = messages.find(v => v.userMessageId === event.data.id)
+    if (message) {
+      // get the matching staff message
+      const staffRoomMessage = await webex(user.token.access_token).messages.get(message.staffMessageId)
+      // console.log('staffRoomMessage:', staffRoomMessage)
+      // update the matching message in the staff rooom
+      const url = 'https://webexapis.com/v1/messages/' + staffRoomMessage.id 
+      const options = {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + user.token.access_token
+        },
+        body: JSON.stringify({
+          roomId: staffRoomMessage.roomId,
+          text: data.text,
+          markdown: data.markdown
+        })
+      }
+      fetch(url, options).catch(e => {
+        console.log('Failed to update user message in the staff room:', e.message)
+      })
+      
+      // done
       return
     }
-    // get the matching staff message
-    const staffRoomMessage = await webex(user.token.access_token).messages.get(t.staffMessageId)
-    // console.log('staffRoomMessage:', staffRoomMessage)
-    // update the matching message in the staff rooom
-    const url = 'https://webexapis.com/v1/messages/' + staffRoomMessage.id 
-    const options = {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + user.token.access_token
-      },
-      body: JSON.stringify({
-        roomId: staffRoomMessage.roomId,
-        text: data.text,
-        markdown: data.markdown
-      })
-    }
-    fetch(url, options).catch(e => {
-      console.log('Failed to update user message in the staff room:', e.message)
-    })
-    
-    // done
-    return
   }
 
   // forward the first attached file, if any
