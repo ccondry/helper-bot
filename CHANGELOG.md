@@ -3,6 +3,13 @@
 Dates are in YYYY-MM-DD format
 
 
+# 2021.7.27
+
+### Fixes
+
+* **Messages:** Fixed deleting messages from staff in the user rooms.
+
+
 # 2021.7.21-1
 
 ### Features
