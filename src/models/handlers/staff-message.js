@@ -114,11 +114,13 @@ module.exports = async function (user, event, rooms) {
   try {
     // send message
     const response = await webex(user.token.access_token).messages.create(data)
-    // save message ID pair in cache
-    messages.push({
+    const messagePair = {
       userMessageId: response.id,
       staffMessageId: event.data.id
-    })
+    }
+    console.log('saving message pair:', messagePair)
+    // save message ID pair in cache
+    messages.push(messagePair)
     // save thread if it doesn't exist yet
     if (!thread) {
       // thread parent ID for user room
