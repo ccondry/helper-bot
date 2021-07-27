@@ -8,9 +8,10 @@ const file = require('../file')
 const fetch = require('../fetch')
 
 module.exports = async function (user, event, rooms) {
+  console.log('staff message event')
   // did the staff delete their message?
   if (event.event === 'deleted') {
-    // console.log('deleted event data:', event.data)
+    console.log('deleted staff message event data:', event.data)
     const message = messages.find(v => v.staffMessageId === event.data.id)
     if (!message) {
       console.log(`can't delete staff message from user room - didn't find this message:`, message)
