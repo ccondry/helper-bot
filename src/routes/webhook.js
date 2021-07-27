@@ -12,7 +12,7 @@ router.post('/*', async (req, res, next) => {
   // console.log('webhook headers', req.headers)
   // copy request body
   const event = JSON.parse(JSON.stringify(req.body))
-  console.log('webhook event', event)
+  // console.log('webhook event', event)
   // ignore messages from self
   if (event.createdBy === event.data.personId) {
     return
@@ -23,6 +23,7 @@ router.post('/*', async (req, res, next) => {
   try {
     // find the related user
     user = await oauth2.getUser({personId: event.createdBy})
+    // console.log('this message is for', user)
   } catch (e) {
     // database operation failed
     const message = 'webhook failed during lookup of webhook user: ' + e.message
@@ -86,6 +87,7 @@ router.post('/*', async (req, res, next) => {
   // find the matching room set for this user
   const userRoomSet = user.rooms.find(v => v.userRoomId === event.data.roomId)
   if (userRoomSet) {
+    // console.log('user room message for user room set', userRoomSet)
     try {
       await handleUserMessage(user, event, userRoomSet)
       // done
@@ -101,6 +103,7 @@ router.post('/*', async (req, res, next) => {
     // was message sent to a staff room?
     const staffRoomSet = user.rooms.find(v => v.staffRoomId === event.data.roomId)
     if (staffRoomSet) {
+      // console.log('staff room message for user room set', staffRoomSet)
       // message is from staff in staff room
       // did message mention this user?
       if (

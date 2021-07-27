@@ -8,10 +8,10 @@ const file = require('../file')
 const fetch = require('../fetch')
 
 module.exports = async function (user, event, rooms) {
-  console.log('staff message event')
+  // console.log('staff message event')
   // did the staff delete their message?
   if (event.event === 'deleted') {
-    console.log('deleted staff message event data:', event.data)
+    // console.log('deleted staff message event data:', event.data)
     const message = messages.find(v => v.staffMessageId === event.data.id)
     if (!message) {
       console.log(`can't delete staff message from user room - didn't find this message:`, message)
@@ -24,7 +24,7 @@ module.exports = async function (user, event, rooms) {
     console.log('found user room message to delete:', userRoomMessage)
     // delete the matching message in the staff rooom
     webex(user.token.access_token).messages.remove(userRoomMessage)
-    .then(r => console.log('deleted staff message from user room:', userRoomMessage))
+    // .then(r => console.log('deleted staff message from user room:', userRoomMessage))
     .catch(e => console.log('Failed to delete staff message from the user room:', e.message))
     // done
     return
@@ -119,7 +119,7 @@ module.exports = async function (user, event, rooms) {
       userMessageId: response.id,
       staffMessageId: event.data.id
     }
-    console.log('saving message pair:', messagePair)
+    // console.log('saving message pair:', messagePair)
     // save message ID pair in cache
     messages.push(messagePair)
     // save thread if it doesn't exist yet
