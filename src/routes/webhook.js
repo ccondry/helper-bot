@@ -103,7 +103,16 @@ router.post('/*', async (req, res, next) => {
     if (staffRoomSet) {
       // message is from staff in staff room
       // did message mention this user?
-      if (Array.isArray(event.data.mentionedPeople) && event.data.mentionedPeople.includes(user.personId)) {
+      if (
+        // if this is a deleted message event
+        event.event === 'deleted' ||
+        (
+          // or if mentionedPeople is an array
+          Array.isArray(event.data.mentionedPeople) &&
+          // and it contains this bot user
+          event.data.mentionedPeople.includes(user.personId)
+        )
+      ) {
         // only handle staff messages that @ me
         try {
           await handleStaffMessage(user, event, staffRoomSet)
