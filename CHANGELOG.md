@@ -3,6 +3,14 @@
 Dates are in YYYY-MM-DD format
 
 
+# 2021.7.29
+
+### Fixes
+
+* **Messages:** Cache handled message event IDs and do not process them a
+second time if the same webhook event is received more than once.
+
+
 # 2021.7.27
 
 ### Fixes
