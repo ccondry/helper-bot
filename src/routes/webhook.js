@@ -6,6 +6,8 @@ const handleUserMessage = require('../models/handlers/user-message')
 const handleStaffMessage = require('../models/handlers/staff-message')
 const crypto = require('crypto')
 const pkg = require('../../package.json')
+// cache of already-received messages
+const cache = {}
 
 // all webhook messages from webex
 router.post('/*', async (req, res, next) => {
@@ -13,9 +15,16 @@ router.post('/*', async (req, res, next) => {
   // copy request body
   const event = JSON.parse(JSON.stringify(req.body))
   // console.log('webhook event', event)
+
   // ignore messages from self
   if (event.createdBy === event.data.personId) {
-    return
+    return res.status(200).send()
+  }
+
+  // if we have already received this webhook event
+  if (cache[event.data.id]) {
+    // ignore it
+    return res.status(200).send()
   }
 
   // get webhook user details
@@ -58,12 +67,12 @@ router.post('/*', async (req, res, next) => {
 
   // request validated
   // return OK to webhook sender and continue processing
-  res.status(200).send({})
+  // res.status(200).send()
 
   // check resource and event type
   if (event.resource !== 'messages') {
     // ignore non-messages
-    return
+    return res.status(200).send()
   }
 
   // get the message details for created or updated events (not deleted ones)
@@ -74,14 +83,14 @@ router.post('/*', async (req, res, next) => {
       // failed to get message details
       const message = `webhook failed to get message details: ${e.message}`
       console.log(pkg.name, pkg.version, message)
-      return
+      return res.status(500).send({message})
     }
   }
     
   // if the message was a direct 1-1 message
   if (event.data.roomType !== 'group') {
     // ignore it
-    return
+    return res.status(200).send() 
   }
 
   // find the matching room set for this user
@@ -89,14 +98,17 @@ router.post('/*', async (req, res, next) => {
   if (userRoomSet) {
     // console.log('user room message for user room set', userRoomSet)
     try {
+      // handle the user message
       await handleUserMessage(user, event, userRoomSet)
+      // add handled message to event cache
+      cache[event.data.id] = true
       // done
-      return
+      return res.status(200).send()
     } catch (e) {
       // failed during handle user message
       const message = `failed to handle webhook message to user room ${event.data.roomId}: ${e.message}`
       console.log(pkg.name, pkg.version, message)
-      return
+      return res.status(500).send({message})
     }
   } else {
     // message not sent to a user room
@@ -119,22 +131,25 @@ router.post('/*', async (req, res, next) => {
         // only handle staff messages that @ me
         try {
           await handleStaffMessage(user, event, staffRoomSet)
+          // add handled message to event cache
+          cache[event.data.id] = true
           // done
-          return
+          return res.status(200).send()
         } catch (e) {
           // failed during handle staff message
           const message = `failed to handle webhook message to staff room ${event.data.roomId}: ${e.message}`
           console.log(pkg.name, pkg.version, message)
-          return
+          return res.status(500).send({message})
         }
       } else {
         // ignore messages that do not @ me
-        return
+        return res.status(200).send()
       }
     } else {
       const message = `webhook room did not match any rooms for ${user.personEmail} (${user.personId})`
       console.log(pkg.name, pkg.version, message)
-      return
+      // return 200 OK though
+      return res.status(200).send()
     }
   }
 })
