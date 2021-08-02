@@ -66,7 +66,7 @@ module.exports = async function (user, event, rooms) {
   if (thread) {
     console.log('found thread for user message:', thread)
     // message from a thread - map to thread in staff room
-    parentId = thread.staffThreadId
+    data.parentId = thread.staffThreadId
   } else {
     console.log('no thread found for user message')
   }
