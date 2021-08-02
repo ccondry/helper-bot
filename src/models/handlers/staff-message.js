@@ -1,8 +1,11 @@
 // webex client
 const webex = require('../webex')
+// database cache
+const Cache = require('../cache')
+// messages cache
+const messages = new Cache('message')
 // threads cache
-const threads = require('../threads')
-const messages = require('../messages')
+const threads = new Cache('thread')
 // download file from webex and save locally. returns our public URL for file
 const file = require('../file')
 const fetch = require('../fetch')
@@ -12,10 +15,11 @@ module.exports = async function (user, event, rooms) {
   // did the staff delete their message?
   if (event.event === 'deleted') {
     // console.log('deleted staff message event data:', event.data)
-    const message = messages.find(v => v.staffMessageId === event.data.id)
+    const message = messages.get().find(v => v.staffMessageId === event.data.id)
     if (!message) {
-      console.log(`can't delete staff message from user room - didn't find this message:`, message)
-      console.log('in messages', messages)
+      // console.log(`can't delete staff message from user room - didn't find this message:`, message)
+      // console.log('in messages', messages)
+      console.log(`couldn't delete staff message ${event.data.id} from user room - original message not found in cache.`)
       // we dont have a record of this thread. can't delete the message.
       return
     }
@@ -30,37 +34,42 @@ module.exports = async function (user, event, rooms) {
     return
   }
 
-  // parse the html output to nice markdown with the mention to this bot removed
-  // and any emails turned into real mentions
-  let markdown
-  try {
-    const mentionRegex = /<spark-mention.*<\/spark-mention>/g
-    const emailRegex = /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/
-    markdown = event.data.html.replace(mentionRegex, '').replace(emailRegex, '<@personEmail:$&>').trim()
-  } catch (e) {
-    // continue
-  }
-
   // copy the plain text message from the event
   const text = event.data.text
   
   // sending message to user room
   const data = {
     roomId: rooms.userRoomId,
-    text,
-    markdown
+    text
   }
+
+  // set markdown data
+  try {
+    // remove spark-mention tags
+    const mentionRegex = /<spark-mention.*<\/spark-mention>/g
+    data.markdown = event.data.html.replace(mentionRegex, '')
+
+    // replace email addresses with people mentions
+    const emailRegex = /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/
+    data.markdown = data.markdown.replace(emailRegex, '<@personEmail:$&>')
+
+    // trim any whitespace at the beginning or end of the message
+    data.markdown = data.markdown.trim()
+  } catch (e) {
+    // continue
+  }
+
   // attach thread parent ID, if found
-  const thread = threads.find(v => v.staffThreadId === event.data.parentId)
+  const thread = threads.get().find(v => v.staffThreadId === event.data.parentId)
   if (thread) {
-    // message from a thread - map to thread in staff room
+    // message from a thread - map to thread in user room
     data.parentId = thread.userThreadId
   }
 
   // did the staff update their message?
   if (event.event === 'updated') {
     // console.log('updated event data:', event.data)
-    const message = messages.find(v => v.staffMessageId === event.data.id)
+    const message = messages.get().find(v => v.staffMessageId === event.data.id)
     if (message) {
       // get the matching user room message
       const userRoomMessage = await webex(user.token.access_token).messages.get(message.userMessageId)

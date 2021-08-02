@@ -1,6 +1,10 @@
 const webex = require('../webex')
-const threads = require('../threads')
-const messages = require('../messages')
+// database cache
+const Cache = require('../cache')
+// messages cache
+const messages = new Cache('message')
+// threads cache
+const threads = new Cache('thread')
 const file = require('../file')
 const fetch = require('../fetch')
 // const me = require('../me')
@@ -11,9 +15,10 @@ module.exports = async function (user, event, rooms) {
   // did the user delete their message?
   if (event.event === 'deleted') {
     // console.log('deleted event data:', event.data)
-    const message = messages.find(v => v.userMessageId === event.data.id)
+    const message = messages.get().find(v => v.userMessageId === event.data.id)
     if (!message) {
       // we dont have a record of this thread. can't delete the message.
+      console.log(`couldn't delete user message ${event.data.id} from staff room - original message not found in cache.`)
       return
     }
     // get the matching staff room message
@@ -39,29 +44,28 @@ module.exports = async function (user, event, rooms) {
   // const text = event.data.text.replace(botName, '').trim()
   const text = event.data.text
 
-  // find matching thread for this message
-  const thread = threads.find(v => v.userThreadId === event.data.parentId)
-  let parentId
-  if (thread) {
-    // message from a thread - map to thread in staff room
-    parentId = thread.staffThreadId
-  }
-
   // construct the message to forward to staff room
   const data = {
     roomId: rooms.staffRoomId,
-    text: `${event.data.personEmail} said ${text}`,
-    parentId
+    text: `${event.data.personEmail} said ${text}`
   }
+
   // only send markdown if html has more than <p> formatting
   if (typeof html === 'string' && typeof text === 'string' && html.length > text.length + 8) {
     data.markdown = `${event.data.personEmail} said ${html}`
   }
 
+  // attach thread parent ID, if found
+  const thread = threads.get().find(v => v.userThreadId === event.data.parentId)
+  if (thread) {
+    // message from a thread - map to thread in staff room
+    parentId = thread.staffThreadId
+  }
+
   // did the user update their message?
   if (event.event === 'updated') {
     // console.log('updated event data:', event.data)
-    const message = messages.find(v => v.userMessageId === event.data.id)
+    const message = messages.get().find(v => v.userMessageId === event.data.id)
     if (message) {
       // get the matching staff message
       const staffRoomMessage = await webex(user.token.access_token).messages.get(message.staffMessageId)
