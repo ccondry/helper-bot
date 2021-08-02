@@ -11,7 +11,7 @@ class Cache {
 
   findOne (query) {
     // don't include _id in returned data
-    const projection = {_id: -1}
+    const projection = {_id: 0}
     // find data
     return db.findOne('helper', this.collection, query, {projection})
   }
