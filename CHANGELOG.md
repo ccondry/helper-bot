@@ -3,6 +3,16 @@
 Dates are in YYYY-MM-DD format
 
 
+# 2021.8.2
+
+### Features
+* **Messages:** Use mongo database to store and retrieve message ID and thread
+IDs instead of in-memory cache.
+
+### Fixes
+* **Messages:** Fix missing markdown from staff-to-user messages.
+
+
 # 2021.7.29
 
 ### Fixes
