@@ -12,8 +12,13 @@ const fetch = require('../fetch')
 
 module.exports = async function (user, event, rooms) {
   // console.log('staff message event')
+  const logObject = {
+    id: event.data.id,
+    html: event.data.html,
+    parentId: event.data.parentId
+  }
+  console.log('staff message event data:', logObject)
   // did the staff delete their message?
-  // console.log('staff message event data:', event.data)
   if (event.event === 'deleted') {
     const message = await messages.findOne({staffMessageId: event.data.id})
     if (!message) {
@@ -62,8 +67,11 @@ module.exports = async function (user, event, rooms) {
   // attach thread parent ID, if found
   const thread = await threads.findOne({staffThreadId: event.data.parentId})
   if (thread) {
+    console.log('found thread for staff message:', thread)
     // message from a thread - map to thread in user room
     data.parentId = thread.userThreadId
+  } else {
+    console.log('no thread found for staff message')
   }
 
   // did the staff update their message?

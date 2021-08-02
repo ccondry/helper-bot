@@ -12,8 +12,13 @@ const fetch = require('../fetch')
 // const stream = require('stream')
 
 module.exports = async function (user, event, rooms) {
+  const logObject = {
+    id: event.data.id,
+    html: event.data.html,
+    parentId: event.data.parentId
+  }
+  console.log('user message event data:', logObject)
   // did the user delete their message?
-  // console.log('user message event data:', event.data)
   if (event.event === 'deleted') {
     const message = await messages.findOne({userMessageId: event.data.id})
     if (!message) {
@@ -61,6 +66,8 @@ module.exports = async function (user, event, rooms) {
     console.log('found thread for user message:', thread)
     // message from a thread - map to thread in staff room
     parentId = thread.staffThreadId
+  } else {
+    console.log('no thread found for user message')
   }
 
   // did the user update their message?
