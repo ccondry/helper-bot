@@ -20,10 +20,10 @@ router.post('/*', async (req, res, next) => {
     // ignore it
     console.log('ignoring webhook event', event.id, 'because it was my own bot message.')
     return res.status(200).send()
-  } else if (cache[event.id]) {
+  } else if (event.event === 'created' && cache[event.data.id]) {
     // else if we have already received this webhook event
     // ignore it
-    console.log('ignoring webhook event', event.id, 'because we already received it.')
+    console.log('ignoring message created webhook event', event.id, 'because we already received it.')
     return res.status(200).send()
   } else {
     // continue processing event
@@ -104,7 +104,7 @@ router.post('/*', async (req, res, next) => {
       // handle the user message
       await handleUserMessage(user, event, userRoomSet)
       // add handled message to event cache
-      cache[event.id] = true
+      cache[event.data.id] = true
       // done
       return res.status(200).send()
     } catch (e) {
@@ -134,7 +134,7 @@ router.post('/*', async (req, res, next) => {
         try {
           await handleStaffMessage(user, event, staffRoomSet)
           // add handled message to event cache
-          cache[event.id] = true
+          cache[event.data.id] = true
           // done
           return res.status(200).send()
         } catch (e) {
