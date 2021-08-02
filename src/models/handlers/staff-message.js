@@ -13,11 +13,9 @@ const fetch = require('../fetch')
 module.exports = async function (user, event, rooms) {
   // console.log('staff message event')
   // did the staff delete their message?
-  console.log('staff message event data:', event.data)
+  // console.log('staff message event data:', event.data)
   if (event.event === 'deleted') {
-    const messageCache = messages.get()
-    console.log('messageCache', messageCache)
-    const message = messageCache.find(v => v.staffMessageId === event.data.id)
+    const message = await messages.find({staffMessageId: event.data.id})
     if (!message) {
       // console.log(`can't delete staff message from user room - didn't find this message:`, message)
       // console.log('in messages', messages)
@@ -62,7 +60,7 @@ module.exports = async function (user, event, rooms) {
   }
 
   // attach thread parent ID, if found
-  const thread = threads.get().find(v => v.staffThreadId === event.data.parentId)
+  const thread = await threads.find({staffThreadId: event.data.parentId})
   if (thread) {
     // message from a thread - map to thread in user room
     data.parentId = thread.userThreadId
@@ -71,7 +69,7 @@ module.exports = async function (user, event, rooms) {
   // did the staff update their message?
   if (event.event === 'updated') {
     // console.log('updated event data:', event.data)
-    const message = messages.get().find(v => v.staffMessageId === event.data.id)
+    const message = await messages.find({staffMessageId: event.data.id})
     if (message) {
       // get the matching user room message
       const userRoomMessage = await webex(user.token.access_token).messages.get(message.userMessageId)
@@ -132,7 +130,7 @@ module.exports = async function (user, event, rooms) {
     }
     // console.log('saving message pair:', messagePair)
     // save message ID pair in cache
-    messages.push(messagePair)
+    await messages.insertOne(messagePair)
     // save thread if it doesn't exist yet
     if (!thread) {
       // thread parent ID for user room
@@ -140,7 +138,7 @@ module.exports = async function (user, event, rooms) {
       // thread parent ID for staff room
       const staffThreadId = event.data.parentId ? event.data.parentId : event.data.id
       // add thread to cache
-      threads.push({
+      await threads.insertOne({
         userThreadId,
         staffThreadId
       })

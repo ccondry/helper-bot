@@ -13,12 +13,9 @@ const fetch = require('../fetch')
 
 module.exports = async function (user, event, rooms) {
   // did the user delete their message?
-  console.log('user message event data:', event.data)
+  // console.log('user message event data:', event.data)
   if (event.event === 'deleted') {
-    // console.log('deleted event data:', event.data)
-    const messageCache = messages.get()
-    console.log('messageCache', messageCache)
-    const message = messages.get().find(v => v.userMessageId === event.data.id)
+    const message = await messages.find({userMessageId: event.data.id})
     if (!message) {
       // we dont have a record of this thread. can't delete the message.
       console.log(`couldn't delete user message ${event.data.id} from staff room - original message not found in cache.`)
@@ -54,13 +51,14 @@ module.exports = async function (user, event, rooms) {
   }
 
   // only send markdown if html has more than <p> formatting
-  if (typeof html === 'string' && typeof text === 'string' && html.length > text.length + 8) {
+  if (typeof html === 'string' && typeof text === 'string' && html.length > text.length + 7) {
     data.markdown = `${event.data.personEmail} said ${html}`
   }
 
   // attach thread parent ID, if found
-  const thread = threads.get().find(v => v.userThreadId === event.data.parentId)
+  const thread = await threads.find({userThreadId: event.data.parentId})
   if (thread) {
+    console.log('found thread for user message:', thread)
     // message from a thread - map to thread in staff room
     parentId = thread.staffThreadId
   }
@@ -68,7 +66,7 @@ module.exports = async function (user, event, rooms) {
   // did the user update their message?
   if (event.event === 'updated') {
     // console.log('updated event data:', event.data)
-    const message = messages.get().find(v => v.userMessageId === event.data.id)
+    const message = await messages.find({userMessageId: event.data.id})
     if (message) {
       // get the matching staff message
       const staffRoomMessage = await webex(user.token.access_token).messages.get(message.staffMessageId)
@@ -123,7 +121,7 @@ module.exports = async function (user, event, rooms) {
   try {
     const response = await webex(user.token.access_token).messages.create(data)
     // save message ID pair in cache
-    messages.push({
+    await messages.insertOne({
       userMessageId: event.data.id,
       staffMessageId: response.id
     })
@@ -134,7 +132,7 @@ module.exports = async function (user, event, rooms) {
       // thread parent ID for staff room
       const staffThreadId = response.id
       // add thread to cache
-      threads.push({
+      await threads.insertOne({
         userThreadId,
         staffThreadId
       })
