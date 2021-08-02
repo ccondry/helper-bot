@@ -15,6 +15,7 @@ module.exports = async function (user, event, rooms) {
   const logObject = {
     id: event.data.id,
     html: event.data.html,
+    text: event.data.text,
     parentId: event.data.parentId
   }
   console.log('staff message event data:', logObject)
