@@ -173,6 +173,7 @@ module.exports = async function (user, event, rooms) {
         }
         // send message with file attachment
         data.files = fileUrl
+        console.log('sending the nxt file')
         webex(user.token.access_token).messages.create(data)
         .catch(e => {
           console.log(`failed to send staff ${event.data.personEmail} file ${file} to user room:`, e.message)
