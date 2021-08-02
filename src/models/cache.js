@@ -42,7 +42,7 @@ class Cache {
   async push (value) {
     try {
       // add to cache
-      cache.push(value)
+      this.cache.push(value)
       // add to database
       await db.insertOne('helper', this.collection, value)
     } catch (e) {
