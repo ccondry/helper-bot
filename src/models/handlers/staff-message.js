@@ -13,9 +13,11 @@ const fetch = require('../fetch')
 module.exports = async function (user, event, rooms) {
   // console.log('staff message event')
   // did the staff delete their message?
+  console.log('staff message event data:', event.data)
   if (event.event === 'deleted') {
-    // console.log('deleted staff message event data:', event.data)
-    const message = messages.get().find(v => v.staffMessageId === event.data.id)
+    const messageCache = messages.get()
+    console.log('messageCache', messageCache)
+    const message = messageCache.find(v => v.staffMessageId === event.data.id)
     if (!message) {
       // console.log(`can't delete staff message from user room - didn't find this message:`, message)
       // console.log('in messages', messages)

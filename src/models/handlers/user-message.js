@@ -13,8 +13,11 @@ const fetch = require('../fetch')
 
 module.exports = async function (user, event, rooms) {
   // did the user delete their message?
+  console.log('user message event data:', event.data)
   if (event.event === 'deleted') {
     // console.log('deleted event data:', event.data)
+    const messageCache = messages.get()
+    console.log('messageCache', messageCache)
     const message = messages.get().find(v => v.userMessageId === event.data.id)
     if (!message) {
       // we dont have a record of this thread. can't delete the message.
