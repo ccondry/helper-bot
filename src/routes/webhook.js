@@ -71,6 +71,7 @@ router.post('/*', async (req, res, next) => {
 
   // check resource and event type
   if (event.resource !== 'messages') {
+    console.log('ignoring non-messsage event with resource type', event.resource)
     // ignore non-messages
     return res.status(200).send()
   }
@@ -128,7 +129,6 @@ router.post('/*', async (req, res, next) => {
           event.data.mentionedPeople.includes(user.personId)
         )
       ) {
-        // only handle staff messages that @ me
         try {
           await handleStaffMessage(user, event, staffRoomSet)
           // add handled message to event cache
