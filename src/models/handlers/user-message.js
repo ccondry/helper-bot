@@ -15,7 +15,7 @@ module.exports = async function (user, event, rooms) {
   // did the user delete their message?
   // console.log('user message event data:', event.data)
   if (event.event === 'deleted') {
-    const message = await messages.find({userMessageId: event.data.id})
+    const message = await messages.findOne({userMessageId: event.data.id})
     if (!message) {
       // we dont have a record of this thread. can't delete the message.
       console.log(`couldn't delete user message ${event.data.id} from staff room - original message not found in cache.`)
@@ -56,7 +56,7 @@ module.exports = async function (user, event, rooms) {
   }
 
   // attach thread parent ID, if found
-  const thread = await threads.find({userThreadId: event.data.parentId})
+  const thread = await threads.findOne({userThreadId: event.data.parentId})
   if (thread) {
     console.log('found thread for user message:', thread)
     // message from a thread - map to thread in staff room
@@ -66,7 +66,7 @@ module.exports = async function (user, event, rooms) {
   // did the user update their message?
   if (event.event === 'updated') {
     // console.log('updated event data:', event.data)
-    const message = await messages.find({userMessageId: event.data.id})
+    const message = await messages.findOne({userMessageId: event.data.id})
     if (message) {
       // get the matching staff message
       const staffRoomMessage = await webex(user.token.access_token).messages.get(message.staffMessageId)

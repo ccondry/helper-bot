@@ -19,13 +19,11 @@ class Cache {
     return db.insertOne('helper', this.collection, value)
   }
 
-  find (query) {
+  findOne (query) {
     // don't include _id in returned data
     const projection = {_id: -1}
-    // sort by most recent first to improve find speed?
-    const sort = {_id: -1}
     // find data
-    return db.find('helper', this.collection, query, projection, sort)
+    return db.findOne('helper', this.collection, query, {projection})
   }
 }
 
