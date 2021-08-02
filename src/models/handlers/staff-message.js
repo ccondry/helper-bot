@@ -3,9 +3,9 @@ const webex = require('../webex')
 // database cache
 const Cache = require('../cache')
 // messages cache
-const messages = new Cache({collection: 'message'})
+const messages = new Cache('message')
 // threads cache
-const threads = new Cache({collection: 'thread'})
+const threads = new Cache('thread')
 // download file from webex and save locally. returns our public URL for file
 const file = require('../file')
 const fetch = require('../fetch')
