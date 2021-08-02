@@ -2,9 +2,9 @@ const webex = require('../webex')
 // database cache
 const Cache = require('../cache')
 // messages cache
-const messages = new Cache('message')
+const messages = new Cache({collection: 'message'})
 // threads cache
-const threads = new Cache('thread')
+const threads = new Cache({collection: 'thread'})
 const file = require('../file')
 const fetch = require('../fetch')
 // const me = require('../me')
