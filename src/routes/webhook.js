@@ -14,17 +14,20 @@ router.post('/*', async (req, res, next) => {
   // console.log('webhook headers', req.headers)
   // copy request body
   const event = JSON.parse(JSON.stringify(req.body))
-  console.log('webhook event', event)
 
-  // ignore messages from self
+  // if this message was created by this bot
   if (event.createdBy === event.data.personId) {
-    return res.status(200).send()
-  }
-
-  // if we have already received this webhook event
-  if (cache[event.data.id]) {
     // ignore it
+    console.log('ignoring webhook event', event.id, 'because it was my own bot message.')
     return res.status(200).send()
+  } else if (cache[event.data.id]) {
+    // else if we have already received this webhook event
+    // ignore it
+    console.log('ignoring webhook event', event.id, 'because we already received it.')
+    return res.status(200).send()
+  } else {
+    // continue processing event
+    console.log('webhook event', event)
   }
 
   // get webhook user details
@@ -62,12 +65,9 @@ router.post('/*', async (req, res, next) => {
       return res.status(400).send({message})
     }
   } catch (e) {
+    console.log('Invalid request signature in x-spark-signature')
     return res.status(400).send({message: 'Invalid request signature in x-spark-signature'})
   }
-
-  // request validated
-  // return OK to webhook sender and continue processing
-  // res.status(200).send()
 
   // check resource and event type
   if (event.resource !== 'messages') {
@@ -79,6 +79,7 @@ router.post('/*', async (req, res, next) => {
   // get the message details for created or updated events (not deleted ones)
   if (event.event === 'created' || event.event === 'updated') {
     try {
+      console.log('getting full message details for created or updated event', event.id)
       event.data = await webex(user.token.access_token).messages.get(event.data.id)
     } catch (e) {
       // failed to get message details
@@ -90,6 +91,7 @@ router.post('/*', async (req, res, next) => {
     
   // if the message was a direct 1-1 message
   if (event.data.roomType !== 'group') {
+    console.log('message was not for a group. ignoring event', event.id)
     // ignore it
     return res.status(200).send() 
   }
@@ -97,7 +99,7 @@ router.post('/*', async (req, res, next) => {
   // find the matching room set for this user
   const userRoomSet = user.rooms.find(v => v.userRoomId === event.data.roomId)
   if (userRoomSet) {
-    // console.log('user room message for user room set', userRoomSet)
+    console.log('user room message for user room set', userRoomSet)
     try {
       // handle the user message
       await handleUserMessage(user, event, userRoomSet)
@@ -116,7 +118,7 @@ router.post('/*', async (req, res, next) => {
     // was message sent to a staff room?
     const staffRoomSet = user.rooms.find(v => v.staffRoomId === event.data.roomId)
     if (staffRoomSet) {
-      // console.log('staff room message for user room set', staffRoomSet)
+      console.log('staff room message for user room set', staffRoomSet)
       // message is from staff in staff room
       // did message mention this user?
       if (
