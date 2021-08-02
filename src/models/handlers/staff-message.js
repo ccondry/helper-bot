@@ -16,7 +16,8 @@ module.exports = async function (user, event, rooms) {
     id: event.data.id,
     html: event.data.html,
     text: event.data.text,
-    parentId: event.data.parentId
+    parentId: event.data.parentId,
+    event: event.event
   }
   console.log('staff message event data:', logObject)
   // did the staff delete their message?
