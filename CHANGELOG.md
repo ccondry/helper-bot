@@ -3,6 +3,12 @@
 Dates are in YYYY-MM-DD format
 
 
+# 2021.8.4-1
+
+### Fixes
+* **Messages:** Fix sending multiple files again.
+
+
 # 2021.8.4
 
 ### Fixes
