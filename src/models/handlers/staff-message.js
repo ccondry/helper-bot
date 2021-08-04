@@ -163,10 +163,10 @@ module.exports = async function (user, event, rooms) {
       delete data.markdown
       delete data.text
       // send the rest of the files as separate messages
-      for (const file of event.data.files) {
+      for (const f of event.data.files) {
         // download file and forward file data to webex
         try {
-          const fileData = await file.get(file, user.token.access_token)
+          const fileData = await file.get(f, user.token.access_token)
           // send file ReadStream in teams message
           data.files = [fileData]
           // set text
@@ -185,7 +185,7 @@ module.exports = async function (user, event, rooms) {
             .catch(e => console.log('failed to save message pair:', e.message))
           })
           .catch(e => {
-            console.log(`failed to send staff ${event.data.personEmail} file ${file} to user room:`, e.message)
+            console.log(`failed to send staff ${event.data.personEmail} file ${f} to user room:`, e.message)
           })
         } catch (e) {
           // failed to upload file - log to staff room
