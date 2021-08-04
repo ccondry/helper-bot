@@ -3,6 +3,15 @@
 Dates are in YYYY-MM-DD format
 
 
+# 2021.8.4
+
+### Fixes
+* **Messages:** Fix edited and deleted messages not applying in the paired room.
+Fix file attachments for messages with 2 or more attachments.
+Delete all corresponding messages when deleting a message that originally had
+multiple file attachments.
+
+
 # 2021.8.2
 
 ### Features
