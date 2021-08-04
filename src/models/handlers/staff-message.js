@@ -22,21 +22,23 @@ module.exports = async function (user, event, rooms) {
   console.log('staff message event data:', logObject)
   // did the staff delete their message?
   if (event.event === 'deleted') {
-    const message = await messages.findOne({staffMessageId: event.data.id})
-    if (!message) {
+    const messagePairs = await messages.find({staffMessageId: event.data.id})
+    if (!messagePairs.length) {
       // console.log(`can't delete staff message from user room - didn't find this message:`, message)
       // console.log('in messages', messages)
       console.log(`couldn't delete staff message ${event.data.id} from user room - original message not found in cache.`)
       // we dont have a record of this thread. can't delete the message.
       return
     }
-    // get the matching user room message
-    const userRoomMessage = await webex(user.token.access_token).messages.get(message.userMessageId)
-    console.log('found user room message to delete:', userRoomMessage)
-    // delete the matching message in the staff rooom
-    webex(user.token.access_token).messages.remove(userRoomMessage)
-    // .then(r => console.log('deleted staff message from user room:', userRoomMessage))
-    .catch(e => console.log('Failed to delete staff message from the user room:', e.message))
+    for (const message of messagePairs) {
+      // get the matching user room message
+      const userRoomMessage = await webex(user.token.access_token).messages.get(message.userMessageId)
+      console.log('found user room message to delete:', userRoomMessage)
+      // delete the matching message in the staff rooom
+      webex(user.token.access_token).messages.remove(userRoomMessage)
+      // .then(r => console.log('deleted staff message from user room:', userRoomMessage))
+      .catch(e => console.log('Failed to delete staff message from the user room:', e.message))
+    }
     // done
     return
   }

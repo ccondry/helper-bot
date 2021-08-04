@@ -22,17 +22,21 @@ module.exports = async function (user, event, rooms) {
   console.log('user message event data:', logObject)
   // did the user delete their message?
   if (event.event === 'deleted') {
-    const message = await messages.findOne({userMessageId: event.data.id})
-    if (!message) {
-      // we dont have a record of this thread. can't delete the message.
+    const messagePairs = await messages.find({userMessageId: event.data.id})
+    if (!messagePairs.length) {
+      // we dont have any records matching this message. can't delete the message.
       console.log(`couldn't delete user message ${event.data.id} from staff room - original message not found in cache.`)
       return
     }
-    // get the matching staff room message
-    const staffRoomMessage = await webex(user.token.access_token).messages.get(message.staffMessageId)
-    // delete the matching message in the staff rooom
-    webex(user.token.access_token).messages.remove(staffRoomMessage)
-    .catch(e => console.log('Failed to delete user message from the staff room:', e.message))
+    // for each message pair
+    for (const message of messagePairs) {
+      // get the matching staff room message
+      const staffRoomMessage = await webex(user.token.access_token).messages.get(message.staffMessageId)
+      console.log('found staff room message to delete:', staffRoomMessage)
+      // delete the matching message in the staff rooom
+      webex(user.token.access_token).messages.remove(staffRoomMessage)
+      .catch(e => console.log('Failed to delete user message from the staff room:', e.message))
+    }
     // done
     return
   }
