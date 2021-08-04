@@ -156,7 +156,7 @@ module.exports = async function (user, event, rooms) {
       })
     }
     // more files to send?
-    if (Array.isArray(event.data.files) && event.data.files.length > 1) {
+    if (Array.isArray(event.data.files) && event.data.files.length >= 1) {
       // remove previous data properties
       delete data.markdown
       delete data.text
