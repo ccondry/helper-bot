@@ -81,6 +81,8 @@ module.exports = async function (user, event, rooms) {
   // did the staff update their message?
   if (event.event === 'updated') {
     // console.log('updated event data:', event.data)
+    // find the first message to update (subsequent pairs would be additional
+    // file attachments)
     const message = await messages.findOne({staffMessageId: event.data.id})
     if (message) {
       // get the matching user room message
@@ -113,7 +115,7 @@ module.exports = async function (user, event, rooms) {
   if (Array.isArray(event.data.files) && event.data.files.length) {
     // remove the first file from event data and get the file data
     const file1 = event.data.files.shift()
-    // download file and get publicly-accessible link for the file
+    // download file and forward file data to webex
     try {
       const fileData = await file.get(file1, user.token.access_token)
       // send file link or ReadStream in teams message
@@ -162,24 +164,37 @@ module.exports = async function (user, event, rooms) {
       delete data.text
       // send the rest of the files as separate messages
       for (const file of event.data.files) {
-        // download file and get publicly-accessible link for the file
-        let fileUrl
+        // download file and forward file data to webex
         try {
-          fileUrl = await getFile(file)
+          const fileData = await file.get(file, user.token.access_token)
+          // send file ReadStream in teams message
+          data.files = [fileData]
+          // set text
+          data.text = `${event.data.personEmail} also sent this file`
+          console.log('sending the next file')
+          // send the file
+          webex(user.token.access_token).messages.create(data)
+          .then(r => {
+            // save the message pair
+            // console.log('saving message pair:', messagePair)
+            // save message ID pair in cache
+            messages.insertOne({
+              userMessageId: response.id,
+              staffMessageId: event.data.id
+            })
+            .catch(e => console.log('failed to save message pair:', e.message))
+          })
+          .catch(e => {
+            console.log(`failed to send staff ${event.data.personEmail} file ${file} to user room:`, e.message)
+          })
         } catch (e) {
-          // failed to upload/write file - log to staff room
+          // failed to upload file - log to staff room
           webex(user.token.access_token).messages.create({
             roomId: rooms.staffRoomId,
             text: `${event.data.personEmail} tried to send a file, but there was an error: ${e.message}`
           }).catch(e => console.log('Failed to send file error message to staff room:', e.message))
         }
-        // send message with file attachment
-        data.files = fileUrl
-        console.log('sending the nxt file')
-        webex(user.token.access_token).messages.create(data)
-        .catch(e => {
-          console.log(`failed to send staff ${event.data.personEmail} file ${file} to user room:`, e.message)
-        })
+        
       }
     }
   } catch (e) {
