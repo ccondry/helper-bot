@@ -17,6 +17,7 @@ function getFilename (response) {
 
 module.exports = {
   async get (url, token) {
+    console.log('file.get', url)
     let response
     try {
       // get file
