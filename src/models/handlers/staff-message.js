@@ -170,7 +170,7 @@ module.exports = async function (user, event, rooms) {
           // send file ReadStream in teams message
           data.files = [fileData]
           // set text
-          data.text = `${event.data.personEmail} also sent this file`
+          // data.text = `${event.data.personEmail} also sent this file`
           console.log('sending the next file')
           // send the file
           webex(user.token.access_token).messages.create(data)
