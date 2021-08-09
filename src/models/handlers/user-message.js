@@ -12,14 +12,15 @@ const fetch = require('../fetch')
 // const stream = require('stream')
 
 module.exports = async function (user, event, rooms) {
-  const logObject = {
-    id: event.data.id,
-    html: event.data.html,
-    text: event.data.text,
-    parentId: event.data.parentId,
-    event: event.event
-  }
-  console.log('user message event data:', logObject)
+  // const logObject = {
+  //   id: event.data.id,
+  //   html: event.data.html,
+  //   text: event.data.text,
+  //   parentId: event.data.parentId,
+  //   event: event.event
+  // }
+  // console.log('user message event data:', logObject)
+  console.log('user message event data:', event)
   // did the user delete their message?
   if (event.event === 'deleted') {
     const messagePairs = await messages.find({userMessageId: event.data.id})

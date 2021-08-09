@@ -12,14 +12,15 @@ const fetch = require('../fetch')
 
 module.exports = async function (user, event, rooms) {
   // console.log('staff message event')
-  const logObject = {
-    id: event.data.id,
-    html: event.data.html,
-    text: event.data.text,
-    parentId: event.data.parentId,
-    event: event.event
-  }
-  console.log('staff message event data:', logObject)
+  // const logObject = {
+  //   id: event.data.id,
+  //   html: event.data.html,
+  //   text: event.data.text,
+  //   parentId: event.data.parentId,
+  //   event: event.event
+  // }
+  // console.log('staff message event data:', logObject)
+  console.log('staff message event data:', event)
   // did the staff delete their message?
   if (event.event === 'deleted') {
     const messagePairs = await messages.find({staffMessageId: event.data.id})
@@ -124,7 +125,7 @@ module.exports = async function (user, event, rooms) {
       if (typeof data.text !== 'string' || data.text.length === 0) {
         data.text = `${event.data.personEmail} sent this file`
         delete data.markdown
-      }
+      } 
     } catch (e) {
       // failed to upload/write file - log to staff room
       webex(user.token.access_token).messages.create({
@@ -171,7 +172,7 @@ module.exports = async function (user, event, rooms) {
           data.files = [fileData]
           // set text
           // data.text = `${event.data.personEmail} also sent this file`
-          console.log('sending the next file')
+          console.log('sen   ding the next file')
           // send the file
           webex(user.token.access_token).messages.create(data)
           .then(r => {
