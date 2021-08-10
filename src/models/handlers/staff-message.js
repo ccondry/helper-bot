@@ -164,8 +164,10 @@ module.exports = async function (user, event, rooms) {
       // remove previous text and markdown properties
       delete data.markdown
       delete data.text
-      // set thread ID
-      // data.parentId = response.id
+      // set thread ID if not set yet
+      if (!data.parentId) {
+        data.parentId = response.id
+      }
       // send the rest of the files as separate messages on the same thread
       for (const f of event.data.files) {
         // download file and forward file data to webex

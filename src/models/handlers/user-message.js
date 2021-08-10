@@ -153,9 +153,13 @@ module.exports = async function (user, event, rooms) {
     }
     // more files to send?
     if (Array.isArray(event.data.files) && event.data.files.length >= 1) {
-      // remove markdown from previous data
-      delete data.markdown
+      // remove text and markdown from previous data
       delete data.text
+      delete data.markdown
+      // set thread ID if not set yet
+      if (!data.parentId) {
+        data.parentId = response.id
+      }
       // send the rest of the files as separate messages
       for (const f of event.data.files) {
         try { 
