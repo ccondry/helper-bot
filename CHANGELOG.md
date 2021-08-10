@@ -3,6 +3,14 @@
 Dates are in YYYY-MM-DD format
 
 
+# 2021.8.10
+
+### Fixes
+* **Messages:** Remove staff user ID from additional file attachment messages.
+* **Messages:** Set parent ID on additional file attachment messages so they
+always appear together in the same thread.
+
+
 # 2021.8.4-1
 
 ### Fixes
