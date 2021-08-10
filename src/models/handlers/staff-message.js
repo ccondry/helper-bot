@@ -139,6 +139,7 @@ module.exports = async function (user, event, rooms) {
   try {
     // send message
     const response = await webex(user.token.access_token).messages.create(data)
+    console.log('send message response', response)
     const messagePair = {
       userMessageId: response.id,
       staffMessageId: event.data.id
@@ -160,10 +161,12 @@ module.exports = async function (user, event, rooms) {
     }
     // more files to send?
     if (Array.isArray(event.data.files) && event.data.files.length >= 1) {
-      // remove previous data properties
+      // remove previous text and markdown properties
       delete data.markdown
       delete data.text
-      // send the rest of the files as separate messages
+      // set thread ID
+      // data.parentId = response.id
+      // send the rest of the files as separate messages on the same thread
       for (const f of event.data.files) {
         // download file and forward file data to webex
         try {
@@ -172,7 +175,7 @@ module.exports = async function (user, event, rooms) {
           data.files = [fileData]
           // set text
           // data.text = `${event.data.personEmail} also sent this file`
-          console.log('sen   ding the next file')
+          console.log('sending the next file')
           // send the file
           webex(user.token.access_token).messages.create(data)
           .then(r => {
