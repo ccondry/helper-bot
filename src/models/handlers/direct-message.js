@@ -134,7 +134,9 @@ module.exports = async function (user, event) {
 
   // send message to direct room
   try {
+    console.log(`sending user ${event.data.personEmail} message:`, data)
     const response = await webex(user.token.access_token).messages.create(data)
+    console.log(`sent user ${event.data.personEmail} message to direct room. response:`, response)
     // save message ID pair in cache
     await messages.insertOne({
       directMessageId: event.data.id,
