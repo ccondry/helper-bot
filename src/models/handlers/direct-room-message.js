@@ -45,13 +45,14 @@ module.exports = async function (user, event) {
     return
   }
 
-  // copy the plain text message from the event
-  const text = event.data.text
   
   // extract the person email we should forward the message to
   const emailRegex = /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/
   // it must be the first person email in the message
   const toPersonEmail = event.data.html.match(emailRegex)[0]
+  
+  // copy the plain text message from the event, and remove the user's email
+  let text = event.data.text.replace(toPersonEmail, '').trim()
 
   // sending message 1-1 to user
   const data = {
