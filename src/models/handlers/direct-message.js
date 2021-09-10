@@ -144,9 +144,9 @@ module.exports = async function (user, event) {
     })
     // save thread if it doesn't exist yet
     if (!thread) {
-      // thread parent ID for user room
+      // thread parent ID for 1-1 message room
       const directThreadId = event.data.parentId ? event.data.parentId : event.data.id
-      // thread parent ID for direct room
+      // thread parent ID for direct messages room
       const directRoomThreadId = response.id
       // add thread to cache
       await threads.insertOne({
