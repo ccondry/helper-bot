@@ -67,8 +67,9 @@ module.exports = async function (user, event) {
   }
 
   // attach thread parent ID, if found
+  let thread
   if (event.data.parentId) {
-    const thread = await threads.findOne({directThreadId: event.data.parentId})
+    thread = await threads.findOne({directThreadId: event.data.parentId})
     if (thread) {
       console.log('found thread for direct message:', thread)
       // message from a thread - map to thread in direct room
