@@ -135,7 +135,7 @@ module.exports = async function (user, event) {
     if (thread) {
       console.log('found thread for direct room message:', thread)
       // message from a thread - map to thread with user
-      data.parentId = thread.directMessageId
+      data.parentId = thread.directThreadId
     } else {
       console.log('no thread found for direct room message')
     }
@@ -156,12 +156,12 @@ module.exports = async function (user, event) {
     // save thread if it doesn't exist yet
     if (!thread) {
       // thread parent ID for user room
-      const directMessageId = response.id
+      const directThreadId = response.id
       // thread parent ID for staff room
       const directRoomThreadId = event.data.parentId ? event.data.parentId : event.data.id
       // add thread to cache
       await threads.insertOne({
-        directMessageId,
+        directThreadId,
         directRoomThreadId
       })
     }
