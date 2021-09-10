@@ -2,6 +2,8 @@ const express = require('express')
 const router = express.Router()
 const webex = require('../models/webex')
 const oauth2 = require('../models/oauth2')
+const handleDirectMessage = require('../models/handlers/direct-message')
+const handleDirectRoomMessage = require('../models/handlers/direct-room-message')
 const handleUserMessage = require('../models/handlers/user-message')
 const handleStaffMessage = require('../models/handlers/staff-message')
 const crypto = require('crypto')
@@ -91,9 +93,62 @@ router.post('/*', async (req, res, next) => {
     
   // if the message was a direct 1-1 message
   if (event.data.roomType !== 'group') {
-    console.log('message was not for a group. ignoring event', event.id)
-    // ignore it
-    return res.status(200).send() 
+    // direct 1-1 message from the user
+    console.log('direct user message to the bot')
+    // does this webhook user have a 1-1 room defined?
+    if (!user.directRoomId) {
+      // no direct room defined for this webhook user
+      console.log(`webhook user ${user.personEmail} does not have directRoomId defined. ignoring 1-1 message.`)
+      // ignore 1-1 messages for this webhook user
+      return res.status(200).send()
+    }
+    try {
+      // handle the direct message
+      await handleDirectMessage(user, event)
+      // add handled message to event cache
+      cache[event.data.id] = true
+      // done
+      return res.status(200).send()
+    } catch (e) {
+      // failed during handle user message
+      const message = `failed to handle direct message to webhook user ${user.personEmail}: ${e.message}`
+      console.log(pkg.name, pkg.version, message)
+      return res.status(500).send()
+    }
+  }
+
+  // was this a message sent from staff/admins to the direct messages room?
+  if (event.data.roomId === user.directRoomId) {
+    // message is from staff/admins in direct messages room
+    console.log('direct room message')
+    // is this a message we should handle?
+    if (
+      // if this is a deleted message event
+      event.event === 'deleted' ||
+      (
+        // or if mentionedPeople is an array
+        Array.isArray(event.data.mentionedPeople) &&
+        // and it contains this bot user
+        event.data.mentionedPeople.includes(user.personId)
+      )
+    ) {
+      try {
+        // handle the message
+        await handleDirectRoomMessage(user, event)
+        // add handled message to event cache
+        cache[event.data.id] = true
+        // done
+        return res.status(200).send()
+      } catch (e) {
+        // failed during handle staff message
+        const message = `failed to handle webhook message to direct room ${event.data.roomId}: ${e.message}`
+        console.log(pkg.name, pkg.version, message)
+        return res.status(500).send()
+      }
+    } else {
+      // ignore staff/admin messages that do not @ me
+      return res.status(200).send()
+    }
   }
 
   // find the matching room set for this user
@@ -113,47 +168,48 @@ router.post('/*', async (req, res, next) => {
       console.log(pkg.name, pkg.version, message)
       return res.status(500).send()
     }
-  } else {
-    // message not sent to a user room
-    // was message sent to a staff room?
-    const staffRoomSet = user.rooms.find(v => v.staffRoomId === event.data.roomId)
-    if (staffRoomSet) {
-      console.log('staff room message for user room set', staffRoomSet)
-      // message is from staff in staff room
-      // did message mention this user?
-      if (
-        // if this is a deleted message event
-        event.event === 'deleted' ||
-        (
-          // or if mentionedPeople is an array
-          Array.isArray(event.data.mentionedPeople) &&
-          // and it contains this bot user
-          event.data.mentionedPeople.includes(user.personId)
-        )
-      ) {
-        try {
-          await handleStaffMessage(user, event, staffRoomSet)
-          // add handled message to event cache
-          cache[event.data.id] = true
-          // done
-          return res.status(200).send()
-        } catch (e) {
-          // failed during handle staff message
-          const message = `failed to handle webhook message to staff room ${event.data.roomId}: ${e.message}`
-          console.log(pkg.name, pkg.version, message)
-          return res.status(500).send({message})
-        }
-      } else {
-        // ignore messages that do not @ me
+  }
+  // message not sent to a user room
+
+  // was message sent to a staff room?
+  const staffRoomSet = user.rooms.find(v => v.staffRoomId === event.data.roomId)
+  if (staffRoomSet) {
+    console.log('staff room message for user room set', staffRoomSet)
+    // message is from staff in staff room
+    // did message mention this user?
+    if (
+      // if this is a deleted message event
+      event.event === 'deleted' ||
+      (
+        // or if mentionedPeople is an array
+        Array.isArray(event.data.mentionedPeople) &&
+        // and it contains this bot user
+        event.data.mentionedPeople.includes(user.personId)
+      )
+    ) {
+      try {
+        await handleStaffMessage(user, event, staffRoomSet)
+        // add handled message to event cache
+        cache[event.data.id] = true
+        // done
         return res.status(200).send()
+      } catch (e) {
+        // failed during handle staff message
+        const message = `failed to handle webhook message to staff room ${event.data.roomId}: ${e.message}`
+        console.log(pkg.name, pkg.version, message)
+        return res.status(500).send()
       }
     } else {
-      const message = `webhook room did not match any rooms for ${user.personEmail} (${user.personId})`
-      console.log(pkg.name, pkg.version, message)
-      // return 200 OK though
+      // ignore messages that do not @ me
       return res.status(200).send()
     }
   }
+
+  // message was not sent to staff or user rooms
+  const message = `webhook event ${event.id} from ${event.data.personId} with message ID ${event.data} did not match any rooms for ${user.personEmail}`
+  console.log(pkg.name, pkg.version, message)
+  // return 200 OK to webex though
+  return res.status(200).send()
 })
 
 module.exports = router
