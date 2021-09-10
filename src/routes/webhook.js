@@ -40,13 +40,13 @@ router.post('/*', async (req, res, next) => {
     // database operation failed
     const message = 'webhook failed during lookup of webhook user: ' + e.message
     console.log(pkg.name, pkg.version, message)
-    return res.status(500).send({message})
+    return res.status(500).send()
   }
   if (!user) {
     // user not found
     const message = 'no matching webhook user found for personId ' + event.createdBy
     console.log(pkg.name, pkg.version, message)
-    return res.status(400).send({message})
+    return res.status(400).send()
   }
 
   // validate signature/hash
@@ -62,11 +62,11 @@ router.post('/*', async (req, res, next) => {
       // invalid signature or hash
       const message = 'webhook hash check failed for personId ' + event.createdBy
       console.log(pkg.name, pkg.version, message)
-      return res.status(400).send({message})
+      return res.status(400).send()
     }
   } catch (e) {
     console.log('Invalid request signature in x-spark-signature')
-    return res.status(400).send({message: 'Invalid request signature in x-spark-signature'})
+    return res.status(400).send()
   }
 
   // check resource and event type
@@ -85,7 +85,7 @@ router.post('/*', async (req, res, next) => {
       // failed to get message details
       const message = `webhook failed to get message details: ${e.message}`
       console.log(pkg.name, pkg.version, message)
-      return res.status(500).send({message})
+      return res.status(500).send()
     }
   }
     
@@ -111,7 +111,7 @@ router.post('/*', async (req, res, next) => {
       // failed during handle user message
       const message = `failed to handle webhook message to user room ${event.data.roomId}: ${e.message}`
       console.log(pkg.name, pkg.version, message)
-      return res.status(500).send({message})
+      return res.status(500).send()
     }
   } else {
     // message not sent to a user room
