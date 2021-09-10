@@ -123,7 +123,7 @@ module.exports = async function (user, event, rooms) {
       data.files = [fileData]
       // did they send only files, no text? change the message sent to staff
       if (typeof data.text !== 'string' || data.text.length === 0) {
-        data.text = `${event.data.personEmail} sent this file`
+        // data.text = `${event.data.personEmail} sent this file`
         delete data.markdown
       } 
     } catch (e) {
