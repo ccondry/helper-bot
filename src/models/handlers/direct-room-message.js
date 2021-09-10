@@ -45,20 +45,43 @@ module.exports = async function (user, event) {
     return
   }
 
-  
-  // extract the person email we should forward the message to
-  const emailRegex = /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/
-  // it must be the first person email in the message
-  const toPersonEmail = event.data.html.match(emailRegex)[0]
-  
-  // copy the plain text message from the event, and remove the user's email
-  let text = event.data.text.replace(toPersonEmail, '').trim()
-
-  // sending message 1-1 to user
-  const data = {
-    toPersonEmail,
-    text
+  // attach thread parent ID, if found
+  let thread
+  if (event.data.parentId) {
+    thread = await threads.findOne({directRoomThreadId: event.data.parentId})
+    if (thread) {
+      console.log('found thread for direct room message:', thread)
+      // message from a thread - map to thread with user
+      data.parentId = thread.directThreadId
+    } else {
+      console.log('no thread found for direct room message')
+    }
   }
+
+  // start building data object for the final message
+  const data = {}
+
+  // find the person we should message from the thread info
+  if (thread) {
+    // get the matching direct message
+    const directMessage = await webex(user.token.access_token).messages.get(thread.directThreadId)
+    // set 1-1 room ID from the direct message
+    data.roomId = directMessage.roomId
+  } else {
+    // extract the person email we should forward the message to
+    const emailRegex = /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/
+    const emailMatches = event.data.html.match(emailRegex)
+    // if the staff didn't include the user email
+    if (!emailMatches > 0) {
+      // stop processing
+      console.log('user tagged the bot in direct messages room, but did not specify a user to send the message to.')
+      return
+    }
+    // it must be the first person email in the message
+    data.toPersonEmail = emailMatches[0]
+  }
+  // copy the plain text message from the event, and remove the user's email
+  data.text = event.data.text.replace(data.toPersonEmail, '').trim()
 
   // set markdown data
   try {
@@ -125,19 +148,6 @@ module.exports = async function (user, event) {
         roomId: user.directRoomId,
         text: `${event.data.personEmail} tried to send a file, but there was an error: ${e.message}`
       }).catch(e => console.log('Failed to send file error message to direct messages room:', e.message))
-    }
-  }
-
-  // attach thread parent ID, if found
-  let thread
-  if (event.data.parentId) {
-    thread = await threads.findOne({directRoomThreadId: event.data.parentId})
-    if (thread) {
-      console.log('found thread for direct room message:', thread)
-      // message from a thread - map to thread with user
-      data.parentId = thread.directThreadId
-    } else {
-      console.log('no thread found for direct room message')
     }
   }
 
