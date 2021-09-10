@@ -45,6 +45,9 @@ module.exports = async function (user, event) {
     return
   }
 
+  // start building data object for the final message
+  const data = {}
+
   // attach thread parent ID, if found
   let thread
   if (event.data.parentId) {
@@ -57,9 +60,6 @@ module.exports = async function (user, event) {
       console.log('no thread found for direct room message')
     }
   }
-
-  // start building data object for the final message
-  const data = {}
 
   // find the person we should message from the thread info
   if (thread) {
