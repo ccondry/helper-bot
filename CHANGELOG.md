@@ -3,6 +3,13 @@
 Dates are in YYYY-MM-DD format
 
 
+# 2021.9.10
+
+### Features
+* **Direct Messages:** Handle direct messages between users and a per-bot-user
+direct messages staff/admin room.
+
+
 # 2021.8.10
 
 ### Fixes
