@@ -70,13 +70,17 @@ module.exports = async function (user, event, rooms) {
   }
 
   // attach thread parent ID, if found
-  const thread = await threads.findOne({staffThreadId: event.data.parentId})
-  if (thread) {
-    console.log('found thread for staff message:', thread)
-    // message from a thread - map to thread in user room
-    data.parentId = thread.userThreadId
-  } else {
-    console.log('no thread found for staff message')
+  
+  let thread
+  if (event.data.parentId) {
+    let thread = await threads.findOne({staffThreadId: event.data.parentId})
+    if (thread) {
+      console.log('found thread for staff message:', thread)
+      // message from a thread - map to thread in user room
+      data.parentId = thread.userThreadId
+    } else {
+      console.log('no thread found for staff message')
+    }
   }
 
   // did the staff update their message?
