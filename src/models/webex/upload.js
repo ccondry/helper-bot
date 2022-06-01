@@ -90,6 +90,7 @@ module.exports = async function ({token, data}) {
   const file = data.files[0]
   let stream
   // is file a string?
+  console.log('file input type is', typeof file)
   if (typeof file === 'string') {
     // hope it's a URL!
     stream = file
@@ -98,12 +99,12 @@ module.exports = async function ({token, data}) {
     stream = file
   }
   // get content type / mime type
-  const r = await getMimeType(stream)
+  // const r = await getMimeType(stream)
   // const contentType = r.mime
   const contentType = 'image/jpeg'
   console.log('contentType', contentType)
   // get rewound stream
-  stream = r.stream
+  // stream = r.stream
   // build filename
   const extension = contentType.split('/').pop()
   // console.log('extension', extension)
@@ -112,7 +113,7 @@ module.exports = async function ({token, data}) {
   // console.log('filename', filename)
   // read stream to memory
   const content = await streamToBuffer(stream)
-  // console.log('content', content)
+  console.log('content buffer', content)
   // extract metadata
   const metadata = {}
   for (const key of Object.keys(data)) {
