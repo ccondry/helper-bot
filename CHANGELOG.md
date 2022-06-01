@@ -3,6 +3,15 @@
 Dates are in YYYY-MM-DD format
 
 
+# 2022.6.1
+
+### Fixes
+* **Messages:** Fix file upload error messages not being sent to staff. Add
+retry for all REST requests to Webex. Use custom code for sending a message
+with a file attachment as the REST call made by the Webex library seems to have
+stopped working today.
+
+
 # 2021.9.10
 
 ### Features
