@@ -64,8 +64,27 @@ async function retry (typeName, operation, {data, token}) {
         const response = await upload({token, data})
         console.log(`successful ${operation} webex ${typeName} on retry ${retryCount} of ${maxRetries}`)
         return response
-      } else if (typeName === 'messages') {
-        const url = 'https://webexapis.com/v1/messages'
+      } else {
+        // all other operations
+        const url = 'https://webexapis.com/v1/' + typeName
+        // map operations to HTTP method
+        const methods = {
+          'create': 'POST',
+          'get': 'GET',
+          'remove': 'DELETE',
+          'update': 'PUT'
+        }
+        const options = {
+          method: methods[operation],
+          headers: {
+            Authorization: 'Bearer ' + token
+          },
+        }
+        // set body and content type if needed
+        if (['create', 'update'].includes(operation)) {
+          options.headers['Content-Type'] = 'application/json'
+          options.body = JSON.stringify(data)
+        }
         const response = await fetch(url, options)
         
         if (response.ok) {
@@ -91,11 +110,11 @@ async function retry (typeName, operation, {data, token}) {
           // continue loop iteration to retry
           continue
         }
-      } else {
-        // otherwise use official webex lib
-        const response = await webex(token)[typeName][operation](data)
-        console.log(`successful ${operation} webex ${typeName} on retry ${retryCount} of ${maxRetries}`)
-        return response
+      // } else {
+      //   // otherwise use official webex lib
+      //   const response = await webex(token)[typeName][operation](data)
+      //   console.log(`successful ${operation} webex ${typeName} on retry ${retryCount} of ${maxRetries}`)
+      //   return response
       }
     } catch (e) {
       console.log(`warning: failed to ${operation} webex ${typeName} on retry ${retryCount} of ${maxRetries}. retry again in ${retryThrottle} seconds. error message: ${e.message}`)
