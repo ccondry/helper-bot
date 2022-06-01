@@ -67,7 +67,7 @@ module.exports = async function (user, event, rooms) {
     data.markdown = data.markdown.trim()
 
     // remove space at the beginning of markdown inside the <p> tag
-    data.markdown.replace(/<p> /, '<p>')
+    data.markdown = data.markdown.replace(/<p> /, '<p>')
   } catch (e) {
     // continue
   }
