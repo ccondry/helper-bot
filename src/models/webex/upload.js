@@ -98,7 +98,7 @@ module.exports = async function ({token, data}) {
   const extension = contentType.split('/').pop()
   // console.log('extension', extension)
   const d = new Date()
-  const filename = `${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}.${extension}`
+  const filename = stream.path || `${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}.${extension}`
   // console.log('filename', filename)
   // read stream to memory
   const content = await streamToBuffer(stream)
