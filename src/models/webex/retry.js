@@ -92,18 +92,14 @@ async function retry (typeName, operation, {data, token}) {
 
         console.log('fetch', url, options)
         const response = await fetch(url, options)
-        
+        let retryAfter
         if (response.ok) {
           console.log(`successful ${operation} webex ${typeName} on retry ${retryCount} of ${maxRetries}`)
           return response.json()
         } else if (response.status === 429) {
           // too many requests - wait until Retry-After 
-          retryAfter = response.headers.get('Retry-After')
+          retryAfter = Number.parseInt(response.headers.get('Retry-After'), 10)
           console.log('retryAfter', retryAfter)
-          // wait
-          await sleep(Number.parseInt(retryAfter, 10))
-          // continue loop
-          continue
         } else {
           let text
           try {
@@ -114,18 +110,17 @@ async function retry (typeName, operation, {data, token}) {
           const error = Error(`${response.status} ${response.statusText} - ${text}`)
           console.log(`warning: failed to webex.${typeName}.${operation} on retry ${retryCount} of ${maxRetries}. retry again in ${retryThrottle} seconds. error message: ${error.message}`)
           lastError = error
-          // wait before retrying again
-          await sleep(retryThrottle * 1000)
-          // increment counter
-          retryCount++
-          // continue loop iteration to retry
-          continue
         }
-      // } else {
-      //   // otherwise use official webex lib
-      //   const response = await webex(token)[typeName][operation](data)
-      //   console.log(`successful ${operation} webex ${typeName} on retry ${retryCount} of ${maxRetries}`)
-      //   return response
+        // wait to retry
+        if (retryAfter) {
+          await sleep(retryAfter * 1000)
+        } else {
+          await sleep(retryThrottle * 1000)
+        }
+        // increment counter
+        retryCount++
+        // continue loop iteration to retry
+        continue
       }
     } catch (e) {
       console.log(`warning: failed to ${operation} webex ${typeName} on retry ${retryCount} of ${maxRetries}. retry again in ${retryThrottle} seconds. error message: ${e.message}`)
