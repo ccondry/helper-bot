@@ -38,6 +38,11 @@ module.exports = {
         if (response.status === 423) {
           console.log('got 423 - waiting for file to be available on webex server')
           await sleep(30 * 1000)
+        } else if (response.status === 429) {
+          // too many requests - wait until Retry-After 
+          retryAfter = response.headers.get('Retry-After')
+          console.log('retryAfter', retryAfter)
+          await sleep(Number.parseInt(retryAfter, 10))
         } else if (!response.ok) {
           const text = await response.text()
           throw Error(`${response.status} ${response.statusText} - ${text}`)
