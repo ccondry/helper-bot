@@ -89,7 +89,8 @@ module.exports = async function ({token, data}) {
   let stream = data.files[0]
   // get content type / mime type
   const r = await getMimeType(stream)
-  const contentType = r.mime
+  // const contentType = r.mime
+  const contentType = 'image/jpeg'
   console.log('contentType', contentType)
   // get rewound stream
   stream = r.stream
