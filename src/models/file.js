@@ -35,7 +35,6 @@ module.exports = {
       const maxRetries = 10
       while (retryCount < maxRetries) {
         response = await fetch(url, options)
-        break
         if (response.status === 423) {
           console.log('got 423 - waiting for file to be available on webex server')
           await sleep(30 * 1000)
@@ -48,6 +47,9 @@ module.exports = {
         } else if (!response.ok) {
           const text = await response.text()
           throw Error(`${response.status} ${response.statusText} - ${text}`)
+        } else {
+          // success
+          break
         }
       }
     } catch (e) {
