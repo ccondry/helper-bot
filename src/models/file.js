@@ -42,7 +42,7 @@ module.exports = {
       } else {
         // return the response body stream
         const filename = getFilename(response)
-        console.log('file.get found file data for filename', filename)
+        console.log('file.get found file data for filename', filename, response.body)
         // set path for webex library to see this like a fs.ReadStream class
         response.body.path = filename
         return response.body
