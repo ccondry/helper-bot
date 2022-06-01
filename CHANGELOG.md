@@ -3,6 +3,12 @@
 Dates are in YYYY-MM-DD format
 
 
+# 2022.6.1-1
+
+### Fixes
+* **Messages:** Fix issues with request retrying and attaching files.
+
+
 # 2022.6.1
 
 ### Fixes
