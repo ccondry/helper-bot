@@ -37,6 +37,8 @@ async function upload ({
       Buffer.from(`\r\n--${boundary}--\r\n`, 'utf8')
     ])
 
+    console.log('REST body:', body)
+
     // build REST data
     const options = {
       method: 'POST',
