@@ -125,12 +125,13 @@ module.exports = async function (user, event, rooms) {
       const fileData = await file.get(file1, user.token.access_token)
       // send file link or ReadStream in teams message
       data.files = [fileData]
-      // did they send only files, no text? change the message sent to staff
+      // did they send only files, no text? change the message sent to users
       if (typeof data.text !== 'string' || data.text.length === 0) {
         // data.text = `${event.data.personEmail} sent this file`
         delete data.markdown
       } 
     } catch (e) {
+      console.log(`${event.data.personEmail} tried to send a file, but there was an error:`, e)
       // failed to upload/write file - log to staff room
       webex(user.token.access_token).messages.create({
         roomId: rooms.staffRoomId,
@@ -198,6 +199,7 @@ module.exports = async function (user, event, rooms) {
             console.log(`failed to send staff ${event.data.personEmail} file ${f} to user room:`, e.message)
           })
         } catch (e) {
+          console.log(`${event.data.personEmail} tried to send a file, but there was an error:`, e)
           // failed to upload file - log to staff room
           webex(user.token.access_token).messages.create({
             roomId: rooms.staffRoomId,
