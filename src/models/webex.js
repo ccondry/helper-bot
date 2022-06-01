@@ -39,6 +39,7 @@ async function retry (type, operation, {data, token}) {
   if (!validOperations.includes(operation)) {
     throw Error(`"${operation}" is not a valid operation. use one of: ${validOperations.split(', ')}`)
   }
+  console.log(`trying ${operation} webex ${type} with data:`, data)
   let retryCount = 0
   let lastError
   while (retryCount < maxRetries) {
