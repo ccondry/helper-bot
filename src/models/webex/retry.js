@@ -66,7 +66,7 @@ async function retry (typeName, operation, {data, token}) {
         return response
       } else {
         // all other operations
-        const url = 'https://webexapis.com/v1/' + typeName
+        let url = 'https://webexapis.com/v1/' + typeName
         // map operations to HTTP method
         const methods = {
           'create': 'POST',
@@ -81,9 +81,13 @@ async function retry (typeName, operation, {data, token}) {
           }
         }
         // set body and content type if needed
-        if (['create', 'update'].includes(operation)) {
+        if (['POST', 'PUT'].includes(options.method)) {
           options.headers['Content-Type'] = 'application/json'
           options.body = JSON.stringify(data)
+        }
+        // append id to URL for GET and DELETE
+        if (['GET', 'DELETE'].includes(options.method)) {
+          url += data
         }
 
         console.log('fetch', url, options)
