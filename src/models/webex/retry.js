@@ -2,6 +2,8 @@
 const Webex = require('webex')
 // webex file uploader
 const upload = require('./upload')
+// fetch
+const fetch = require('node-fetch')
 
 function sleep (ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
