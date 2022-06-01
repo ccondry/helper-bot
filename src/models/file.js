@@ -37,7 +37,7 @@ module.exports = {
         response = await fetch(url, options)
         if (response.status === 423) {
           console.log('got 423 - waiting for file to be available on webex server')
-          await sleep(10 * 1000)
+          await sleep(30 * 1000)
         } else if (!response.ok) {
           const text = await response.text()
           throw Error(`${response.status} ${response.statusText} - ${text}`)

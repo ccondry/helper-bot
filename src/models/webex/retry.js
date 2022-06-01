@@ -25,7 +25,7 @@ const types = [
 let clients = {}
 
 // how many seconds to wait before retrying
-const retryThrottle = 5
+const retryThrottle = 60
 
 // get an initialized webex client library object from cache if available
 function webex (accessToken) {
