@@ -88,7 +88,7 @@ module.exports = async function ({token, data}) {
   // get content type / mime type
   const r = await getMimeType(stream)
   const contentType = r.mime
-  // console.log('contentType', contentType)
+  console.log('contentType', contentType)
   // get rewound stream
   stream = r.stream
   // build filename
