@@ -78,13 +78,15 @@ async function retry (typeName, operation, {data, token}) {
           method: methods[operation],
           headers: {
             Authorization: 'Bearer ' + token
-          },
+          }
         }
         // set body and content type if needed
         if (['create', 'update'].includes(operation)) {
           options.headers['Content-Type'] = 'application/json'
           options.body = JSON.stringify(data)
         }
+
+        console.log('fetch', url, options)
         const response = await fetch(url, options)
         
         if (response.ok) {
