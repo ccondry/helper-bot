@@ -42,7 +42,8 @@ module.exports = {
           // too many requests - wait until Retry-After 
           retryAfter = response.headers.get('Retry-After')
           console.log('retryAfter', retryAfter)
-          await sleep(Number.parseInt(retryAfter, 10))
+          await sleep(Number.parseInt(retryAfter, 10) * 1000)
+          console.log('done sleeping')
         } else if (!response.ok) {
           const text = await response.text()
           throw Error(`${response.status} ${response.statusText} - ${text}`)
