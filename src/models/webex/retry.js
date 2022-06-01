@@ -5,7 +5,9 @@ const upload = require('./upload')
 // fetch
 const fetch = require('node-fetch')
 // crypto (for uuid)
-const crypto = require('crypto')
+// const crypto = require('crypto')
+// nanoid for uuid
+const Nanoid = require('nanoid')
 
 function sleep (ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
@@ -47,7 +49,8 @@ function webex (accessToken) {
 
 // retry operation
 async function retry (typeName, operation, {data, token}) {
-  const uuid = crypto.randomUUID()
+  // const uuid = crypto.randomUUID()
+  const uuid = Nanoid.nanoid()
   console.log('retry request uuid', uuid)
   const type = types.find(t => t.name === typeName)
   if (!type) {
