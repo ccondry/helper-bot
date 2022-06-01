@@ -1,5 +1,8 @@
 // webex client library
 const Webex = require('webex')
+function sleep (ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
 
 // max number of retries before giving up
 const maxRetries = 10
