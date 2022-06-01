@@ -35,15 +35,16 @@ module.exports = {
       const maxRetries = 10
       while (retryCount < maxRetries) {
         response = await fetch(url, options)
+        break
         if (response.status === 423) {
           console.log('got 423 - waiting for file to be available on webex server')
           await sleep(30 * 1000)
         } else if (response.status === 429) {
           // too many requests - wait until Retry-After 
           retryAfter = response.headers.get('Retry-After')
-          console.log('retryAfter', retryAfter)
+          console.log('got 429 - waiting retry-after', retryAfter)
           await sleep(Number.parseInt(retryAfter, 10) * 1000)
-          console.log('done sleeping')
+          console.log('done sleeping for', retryAfter)
         } else if (!response.ok) {
           const text = await response.text()
           throw Error(`${response.status} ${response.statusText} - ${text}`)
