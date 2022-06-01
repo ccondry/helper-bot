@@ -85,8 +85,18 @@ function streamToBuffer(stream) {
 }
 
 module.exports = async function ({token, data}) {
+  console.log('webex file upload got input data:', data)
   // only handle 1 file since webex only handles 1 file per message
-  let stream = data.files[0]
+  const file = data.files[0]
+  let stream
+  // is file a string?
+  if (typeof file === 'string') {
+    // hope it's a URL!
+    stream = file
+  } else {
+    // it's a stream
+    stream = file
+  }
   // get content type / mime type
   const r = await getMimeType(stream)
   // const contentType = r.mime
