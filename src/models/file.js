@@ -16,6 +16,7 @@ function getFilename (response) {
 }
 
 module.exports = {
+  getFilename,
   async get (url, token) {
     console.log('file.get', url)
     let response
@@ -27,8 +28,8 @@ module.exports = {
         }
       }
       response = await fetch(url, options)
-      const text = await response.text()
       if (!response.ok) {
+        const text = await response.text()
         throw Error(`${response.status} ${response.statusText} - ${text}`)
       }
     } catch (e) {
@@ -40,12 +41,12 @@ module.exports = {
         console.log('file.get found a redirect URL to', response.url)
         return response.url
       } else {
-        // return the response body stream
-        const filename = getFilename(response)
-        console.log('file.get found file data for filename', filename, response.body)
-        // set path for webex library to see this like a fs.ReadStream class
-        response.body.path = filename
-        return response.body
+        // return the response file object with file content as buffer
+        return {
+          filename: getFilename(response),
+          contentType: response.headers.get('content-type'),
+          content: await response.buffer()
+        }
       }
     } catch (e) {
       console.log('failed to upload/write file:', e.message)

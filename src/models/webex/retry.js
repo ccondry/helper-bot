@@ -57,9 +57,8 @@ async function retry (typeName, operation, {data, token}) {
     try {
       // try operation
       let response
-      // if uploading a file with a message
-      if (typeName === 'messages' && operation === 'create' && data.files.length > 0) {
-        console.log('use special file uploader')
+      // if uploading a file buffer
+      if (typeName === 'messages' && operation === 'create' && data.files.length > 0 && typeof data.files[0] !== 'string') {
         // use special message file sender/uploader
         response = await upload({token, data})
       } else {

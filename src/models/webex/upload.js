@@ -1,5 +1,5 @@
 const fetch = require('node-fetch')
-const { getMimeType } = require('stream-mime-type')
+// const { getMimeType } = require('stream-mime-type')
 
 const url = 'https://webexapis.com/v1/messages'
 
@@ -75,45 +75,19 @@ async function upload ({
   }
 }
 
-function streamToBuffer(stream) {
-  return new Promise((resolve, reject) => {
-    const buffers = []
-    stream.on('error', reject)
-    stream.on('data', (data) => buffers.push(data))
-    stream.on('end', () => resolve(Buffer.concat(buffers)))
-  })
-}
+// function streamToBuffer(stream) {
+//   return new Promise((resolve, reject) => {
+//     const chunks = []
+//     stream.on('error', reject)
+//     stream.on('data', (chunk) => chunks.push(chunk))
+//     stream.on('end', () => resolve(Buffer.concat(chunks)))
+//   })
+// }
 
 module.exports = async function ({token, data}) {
-  console.log('webex file upload got input data:', data)
+  // console.log('webex file upload got input data:', data)
   // only handle 1 file since webex only handles 1 file per message
   const file = data.files[0]
-  let stream
-  // is file a string?
-  console.log('file input type is', typeof file)
-  if (typeof file === 'string') {
-    // hope it's a URL!
-    stream = file
-  } else {
-    // it's a stream
-    stream = file
-  }
-  // get content type / mime type
-  // const r = await getMimeType(stream)
-  // const contentType = r.mime
-  const contentType = 'image/jpeg'
-  console.log('contentType', contentType)
-  // get rewound stream
-  // stream = r.stream
-  // build filename
-  const extension = contentType.split('/').pop()
-  // console.log('extension', extension)
-  const d = new Date()
-  const filename = stream.path || `${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}.${extension}`
-  // console.log('filename', filename)
-  // read stream to memory
-  const content = await streamToBuffer(stream)
-  console.log('content buffer', content)
   // extract metadata
   const metadata = {}
   for (const key of Object.keys(data)) {
@@ -122,13 +96,49 @@ module.exports = async function ({token, data}) {
     // keep everything else
     metadata[key] = data[key]
   }
-  // console.log('metadata', metadata)
-  // send REST request to Webex
+  
   return upload({
-    filename,
-    contentType,
-    content,
+    filename: file.filename,
+    contentType: file.contentType,
+    content: file.content,
     metadata,
     token
   })
+  // let stream
+  // // is file a string?
+  // console.log('file input type is', typeof file)
+  // if (typeof file === 'string') {
+  //   // hope it's a URL!
+  //   stream = file
+  // } else {
+  //   // it's a stream
+  //   stream = file
+  // }
+  // // get content type / mime type
+  // // const r = await getMimeType(stream)
+  // // const contentType = r.mime
+  // const contentType = 'image/jpeg'
+  // console.log('contentType', contentType)
+  // // get rewound stream
+  // // stream = r.stream
+  // // build filename
+  // // const extension = contentType.split('/').pop()
+  // // console.log('extension', extension)
+  // // const d = new Date()
+  // const filename = stream.path
+  // //  || `${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}.${extension}`
+  // // console.log('filename', filename)
+  // // read stream to memory
+  // // const content = await streamToBuffer(stream)
+  // const content = stream.buffer()
+  // console.log('content buffer', content)
+  // // console.log('metadata', metadata)
+  // // send REST request to Webex
+  // return upload({
+  //   filename,
+  //   contentType,
+  //   content,
+  //   metadata,
+  //   token
+  // })
 }
