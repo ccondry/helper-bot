@@ -15,7 +15,7 @@ const validTypes = ['messages', 'people']
 let clients = {}
 
 // how many seconds to wait before retrying
-const retryThrottle = 30
+const retryThrottle = 5
 
 // get an initialized webex client library object from cache if available
 function webex (accessToken) {
