@@ -87,7 +87,7 @@ async function retry (typeName, operation, {data, token}) {
         }
         // append id to URL for GET and DELETE
         if (['GET', 'DELETE'].includes(options.method)) {
-          url += data
+          url += '/' + data
         }
 
         console.log('fetch', url, options)
