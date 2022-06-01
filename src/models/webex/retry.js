@@ -105,9 +105,14 @@ async function retry (typeName, operation, {data, token}) {
           // continue loop
           continue
         } else {
-          const text = await response.text()
+          let text
+          try {
+            text = await response.text()
+          } catch (e) {
+            // continue?
+          }
           const error = Error(`${response.status} ${response.statusText} - ${text}`)
-          console.log(`warning: failed to ${operation} webex ${typeName} on retry ${retryCount} of ${maxRetries}. retry again in ${retryThrottle} seconds. error message: ${error.message}`)
+          console.log(`warning: failed to webex.${typeName}.${operation} on retry ${retryCount} of ${maxRetries}. retry again in ${retryThrottle} seconds. error message: ${error.message}`)
           lastError = error
           // wait before retrying again
           await sleep(retryThrottle * 1000)
