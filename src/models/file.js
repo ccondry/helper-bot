@@ -1,4 +1,7 @@
 const fetch = require('node-fetch')
+function sleep (ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
 
 function getFilename (response) {
   // get content disposition
@@ -27,10 +30,18 @@ module.exports = {
           Authorization: 'Bearer ' + token
         }
       }
-      response = await fetch(url, options)
-      if (!response.ok) {
-        const text = await response.text()
-        throw Error(`${response.status} ${response.statusText} - ${text}`)
+      
+      let retryCount = 0
+      const maxRetries = 10
+      while (retryCount < maxRetries) {
+        response = await fetch(url, options)
+        if (response.status === 423) {
+          console.log('got 423 - waiting for file to be available on webex server')
+          await sleep(10 * 1000)
+        } else if (!response.ok) {
+          const text = await response.text()
+          throw Error(`${response.status} ${response.statusText} - ${text}`)
+        }
       }
     } catch (e) {
       throw e
