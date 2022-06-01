@@ -106,7 +106,7 @@ async function retry (typeName, operation, {data, token}) {
         } else if (response.status === 429) {
           // too many requests - wait until Retry-After 
           retryAfter = Number.parseInt(response.headers.get('Retry-After'), 10)
-          console.log(uuid, 'retryAfter', retryAfter)
+          console.log('test', uuid, 'retryAfter', retryAfter)
         } else {
           let text
           try {
