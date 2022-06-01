@@ -56,16 +56,15 @@ async function retry (typeName, operation, {data, token}) {
   while (retryCount < maxRetries) {
     try {
       // try operation
-      let response
       // if uploading a file buffer
       if (typeName === 'messages' && operation === 'create' && data.files.length > 0 && typeof data.files[0] !== 'string') {
         // use special message file sender/uploader
-        response = await upload({token, data})
+        const response = await upload({token, data})
         console.log(`successful ${operation} webex ${typeName} on retry ${retryCount} of ${maxRetries}`)
         return response
       } else if (typeName === 'messages') {
-        const url = 'https://
-        response = await fetch(url, options)
+        const url = 'https://webexapis.com/v1/messages'
+        const response = await fetch(url, options)
         
         if (response.ok) {
           console.log(`successful ${operation} webex ${typeName} on retry ${retryCount} of ${maxRetries}`)
@@ -92,7 +91,7 @@ async function retry (typeName, operation, {data, token}) {
         }
       } else {
         // otherwise use official webex lib
-        response = await webex(token)[typeName][operation](data)
+        const response = await webex(token)[typeName][operation](data)
         console.log(`successful ${operation} webex ${typeName} on retry ${retryCount} of ${maxRetries}`)
         return response
       }
