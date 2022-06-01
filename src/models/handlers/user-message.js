@@ -197,6 +197,12 @@ module.exports = async function (user, event, rooms) {
       }
     }
   } catch (e) {
+    // failed to send message
     console.log('failed to send user message to staff room:', e.message)
+    // log to staff room
+    webex(user.token.access_token).messages.create({
+      roomId: rooms.staffRoomId,
+      text: `failed to send user message to staff room: ${e.message}`
+    }).catch(e2 => console.log('Failed to send error message to staff room:', e2.message))
   }
 }

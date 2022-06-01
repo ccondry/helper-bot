@@ -204,12 +204,18 @@ module.exports = async function (user, event, rooms) {
           webex(user.token.access_token).messages.create({
             roomId: rooms.staffRoomId,
             text: `${event.data.personEmail} tried to send a file, but there was an error: ${e.message}`
-          }).catch(e => console.log('Failed to send file error message to staff room:', e.message))
+          }).catch(e2 => console.log('Failed to send file error message to staff room:', e2.message))
         }
         
       }
     }
   } catch (e) {
+    // failed to send message
     console.log('failed to send staff message to user room:', e.message)
+    // log to staff room
+    webex(user.token.access_token).messages.create({
+      roomId: rooms.staffRoomId,
+      text: `failed to send staff message to user room: ${e.message}`
+    }).catch(e2 => console.log('Failed to send error message to staff room:', e2.message))
   }
 }
