@@ -4,6 +4,8 @@ const Webex = require('webex')
 const upload = require('./upload')
 // fetch
 const fetch = require('node-fetch')
+// crypto (for uuid)
+const crypto = require('crypto')
 
 function sleep (ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
@@ -45,6 +47,8 @@ function webex (accessToken) {
 
 // retry operation
 async function retry (typeName, operation, {data, token}) {
+  const uuid = crypto.randomUUID()
+  console.log('retry request uuid', uuid)
   const type = types.find(t => t.name === typeName)
   if (!type) {
     throw Error(`"${typeName}" is not a valid type name. use one of: ${types.map(t => t.name).split(', ')}`)
@@ -52,7 +56,7 @@ async function retry (typeName, operation, {data, token}) {
   if (!type.validOperations.includes(operation)) {
     throw Error(`"${operation}" is not a valid operation. use one of: ${type.validOperations.split(', ')}`)
   }
-  console.log(`trying webex.${typeName}.${operation} with data:`, data)
+  console.log(uuid, `trying webex.${typeName}.${operation} with data:`, data)
   let retryCount = 0
   let lastError
   while (retryCount < maxRetries) {
@@ -62,7 +66,7 @@ async function retry (typeName, operation, {data, token}) {
       if (typeName === 'messages' && operation === 'create' && Array.isArray(data.files) && data.files.length > 0 && typeof data.files[0] !== 'string') {
         // use special message file sender/uploader
         const response = await upload({token, data})
-        console.log(`successful ${operation} webex ${typeName} on retry ${retryCount} of ${maxRetries}`)
+        console.log(uuid, `successful ${operation} webex ${typeName} on retry ${retryCount} of ${maxRetries}`)
         return response
       } else {
         // all other operations
@@ -90,16 +94,16 @@ async function retry (typeName, operation, {data, token}) {
           url += '/' + data
         }
 
-        console.log('fetch', url, options)
+        console.log(uuid, 'fetch', url, options)
         const response = await fetch(url, options)
-        let retryAfter
+        let retryAfter = 0
         if (response.ok) {
-          console.log(`successful ${operation} webex ${typeName} on retry ${retryCount} of ${maxRetries}`)
+          console.log(uuid, `successful ${operation} webex ${typeName} on retry ${retryCount} of ${maxRetries}`)
           return response.json()
         } else if (response.status === 429) {
           // too many requests - wait until Retry-After 
           retryAfter = Number.parseInt(response.headers.get('Retry-After'), 10)
-          console.log('retryAfter', retryAfter)
+          console.log(uuid, 'retryAfter', retryAfter)
         } else {
           let text
           try {
@@ -108,22 +112,25 @@ async function retry (typeName, operation, {data, token}) {
             // continue?
           }
           const error = Error(`${response.status} ${response.statusText} - ${text}`)
-          console.log(`warning: failed to webex.${typeName}.${operation} on retry ${retryCount} of ${maxRetries}. retry again in ${retryThrottle} seconds. error message: ${error.message}`)
+          console.log(uuid, `warning: failed to webex.${typeName}.${operation} on retry ${retryCount} of ${maxRetries}. retry again in ${retryThrottle} seconds. error message: ${error.message}`)
           lastError = error
         }
         // wait to retry
-        if (retryAfter) {
+        if (retryAfter > 0) {
+          console.log(uuid, 'await sleep retryAfter', retryAfter)
           await sleep(retryAfter * 1000)
         } else {
+          console.log(uuid, 'await sleep retryThrottle', retryThrottle)
           await sleep(retryThrottle * 1000)
         }
+        console.log(uuid, 'done sleeping')
         // increment counter
         retryCount++
         // continue loop iteration to retry
         continue
       }
     } catch (e) {
-      console.log(`warning: failed to ${operation} webex ${typeName} on retry ${retryCount} of ${maxRetries}. retry again in ${retryThrottle} seconds. error message: ${e.message}`)
+      console.log(uuid, `warning: failed to ${operation} webex ${typeName} on retry ${retryCount} of ${maxRetries}. retry again in ${retryThrottle} seconds. error message: ${e.message}`)
       lastError = e
       // wait before retrying again
       await sleep(retryThrottle * 1000)
@@ -134,7 +141,7 @@ async function retry (typeName, operation, {data, token}) {
     }
   }
   // failed after all retries
-  console.log(`error: failed to ${operation} webex ${typeName} after all ${maxRetries} retries. last error message was: ${lastError.message}`)
+  console.log(uuid, `error: failed to ${operation} webex ${typeName} after all ${maxRetries} retries. last error message was: ${lastError.message}`)
   throw lastError
 }
 
