@@ -27,7 +27,7 @@ module.exports = {
         }
       }
       response = await fetch(url, options)
-      // const text = await response.text()
+      const text = await response.text()
       if (!response.ok) {
         throw Error(`${response.status} ${response.statusText} - ${text}`)
       }
