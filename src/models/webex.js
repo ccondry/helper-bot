@@ -52,6 +52,8 @@ async function retry (type, operation, {data, token}) {
       lastError = e
       // wait before retrying again
       await sleep(retryThrottle * 1000)
+      // increment counter
+      retryCount++
       // continue loop iteration to retry
       continue
     }
