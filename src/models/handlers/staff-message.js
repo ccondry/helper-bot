@@ -10,6 +10,10 @@ const threads = new Cache('thread')
 const file = require('../file')
 const fetch = require('../fetch')
 
+function sleep (ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
 module.exports = async function (user, event, rooms) {
   // console.log('staff message event')
   // const logObject = {
@@ -125,6 +129,8 @@ module.exports = async function (user, event, rooms) {
     const file1 = event.data.files.shift()
     // download file and forward file data to webex
     try {
+      // wait a moment before getting file data
+      await sleep(10 * 1000)
       const fileData = await file.get(file1, user.token.access_token)
       // send file link or ReadStream in teams message
       data.files = [fileData]
