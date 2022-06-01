@@ -59,7 +59,7 @@ async function retry (typeName, operation, {data, token}) {
     try {
       // try operation
       // if uploading a file buffer
-      if (typeName === 'messages' && operation === 'create' && data.files.length > 0 && typeof data.files[0] !== 'string') {
+      if (typeName === 'messages' && operation === 'create' && Array.isArray(data.files) && data.files.length > 0 && typeof data.files[0] !== 'string') {
         // use special message file sender/uploader
         const response = await upload({token, data})
         console.log(`successful ${operation} webex ${typeName} on retry ${retryCount} of ${maxRetries}`)
