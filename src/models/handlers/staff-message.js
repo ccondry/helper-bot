@@ -65,6 +65,9 @@ module.exports = async function (user, event, rooms) {
 
     // trim any whitespace at the beginning or end of the message
     data.markdown = data.markdown.trim()
+
+    // remove space at the beginning of markdown inside the <p> tag
+    data.markdown.replace(/<p> /, '<p>')
   } catch (e) {
     // continue
   }
@@ -140,7 +143,7 @@ module.exports = async function (user, event, rooms) {
     }
   }
 
-  // send message to user room
+  // forward message to user room
   try {
     // send message
     const response = await webex(user.token.access_token).messages.create(data)
