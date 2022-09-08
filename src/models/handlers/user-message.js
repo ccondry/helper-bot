@@ -35,7 +35,7 @@ module.exports = async function (user, event, rooms) {
       const staffRoomMessage = await webex(user.token.access_token).messages.get(message.staffMessageId)
       console.log('found staff room message to delete:', staffRoomMessage)
       // delete the matching message in the staff rooom
-      webex(user.token.access_token).messages.remove(staffRoomMessage)
+      webex(user.token.access_token).messages.remove(staffRoomMessage.id)
       .catch(e => console.log('Failed to delete user message from the staff room:', e.message))
     }
     // done
