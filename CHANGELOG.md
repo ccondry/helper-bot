@@ -3,6 +3,13 @@
 Dates are in YYYY-MM-DD format
 
 
+# 2022.11.1
+
+### Fixes
+* **Messages:** Fix the delete message handlers for user and staff messages. 
+Replace all email addresses in staff-to-user messages, not just the first one.
+
+
 # 2022.6.1-1
 
 ### Fixes
