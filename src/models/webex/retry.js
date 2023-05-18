@@ -107,6 +107,9 @@ async function retry (typeName, operation, {data, token}) {
           // too many requests - wait until Retry-After 
           retryAfter = Number.parseInt(response.headers.get('Retry-After'), 10)
           console.log('test', uuid, 'retryAfter', retryAfter)
+        } else if (response.status === 404) {
+          // don't retry on 404
+          break
         } else {
           let text
           try {
