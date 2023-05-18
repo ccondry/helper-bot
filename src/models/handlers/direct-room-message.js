@@ -37,7 +37,7 @@ module.exports = async function (user, event) {
       const directMessage = await webex(user.token.access_token).messages.get(message.directMessageId)
       console.log('found direct message to delete:', directMessage)
       // delete the matching 1-1 message
-      webex(user.token.access_token).messages.remove(directMessage)
+      webex(user.token.access_token).messages.remove(directMessage.id)
       // .then(r => console.log('deleted staff message from user room:', userRoomMessage))
       .catch(e => console.log('Failed to delete 1-1 message:', e.message))
     }
