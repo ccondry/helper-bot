@@ -117,8 +117,15 @@ router.post('/*', async (req, res, next) => {
     }
   }
 
-  // was this a message sent from staff/admins to the direct messages room?
-  if (event.data.roomId === user.directRoomId) {
+  if (
+    // was this a message sent from staff/admins to the direct messages room?
+    event.data.roomId === user.directRoomId ||
+    // or sent to one of the other staff rooms that can respond directly to users?
+    (
+      Array.isArray(user.otherDirectRoomIds) &&
+      user.otherDirectRoomIds.includes(event.data.roomId)
+    )
+  ) {
     // message is from staff/admins in direct messages room
     console.log('direct room message')
     // is this a message we should handle?
