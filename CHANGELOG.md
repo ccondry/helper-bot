@@ -3,6 +3,13 @@
 Dates are in YYYY-MM-DD format
 
 
+# 2023.5.18
+
+### Updates
+* **Direct Messages:** Check otherDirectRoomIds for additional rooms that staff
+can use to send messages directly to users.
+
+
 # 2022.11.1
 
 ### Fixes
