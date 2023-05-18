@@ -3,6 +3,15 @@
 Dates are in YYYY-MM-DD format
 
 
+# 2023.5.18-1
+
+### Fixes
+* **Messages:** Fixed bot not deleting forwarded direct messages when users or
+staff deleted their message. Fix console errors when a Webex REST request is
+successful but contains no JSON data in the response body. Stop retrying Webex
+REST requests if we receive a 404 response. 
+
+
 # 2023.5.18
 
 ### Updates
