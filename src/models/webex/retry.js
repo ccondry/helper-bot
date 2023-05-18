@@ -102,7 +102,15 @@ async function retry (typeName, operation, {data, token}) {
         let retryAfter = 0
         if (response.ok) {
           console.log(uuid, `successful ${operation} webex ${typeName} on retry ${retryCount} of ${maxRetries}`)
-          return response.json()
+          const text = await response.text()
+          // return JSON response if it was JSON data
+          try {
+            const json = JSON.parse(text)
+            return json
+          } catch (e) {
+            // otherwise return plain text
+            return text
+          }
         } else if (response.status === 429) {
           // too many requests - wait until Retry-After 
           retryAfter = Number.parseInt(response.headers.get('Retry-After'), 10)
