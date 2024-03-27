@@ -212,8 +212,12 @@ router.post('/*', async (req, res, next) => {
     }
   }
 
+  let messageId = event.data
+  if (typeof event.data === 'object') {
+    messageId = event.data.id
+  }
   // message was not sent to staff or user rooms
-  const message = `webhook event ${event.id} from ${event.data.personId} with message ID ${event.data} did not match any rooms for ${user.personEmail}`
+  const message = `webhook event ${event.id} from ${event.data.personId} with message ID ${messageId} did not match any rooms for ${user.personEmail}`
   console.log(pkg.name, pkg.version, message)
   // return 200 OK to webex though
   return res.status(200).send()
