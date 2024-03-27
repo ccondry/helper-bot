@@ -3,6 +3,13 @@
 Dates are in YYYY-MM-DD format
 
 
+# 2024.3.28
+
+### Fixes
+* **Messages:** Remove new html link markup for user email addresses in edited
+staff messages. Fix message ID in logs sometimes being [Object object].
+
+
 # 2023.5.18-1
 
 ### Fixes

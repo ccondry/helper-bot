@@ -1,6 +1,6 @@
 {
   "name": "helper-bot",
-  "version": "2023.5.18-1",
+  "version": "2024.3.28",
   "description": "Web service for maintaining support room mediator users in the Webex Teams Helper integration.",
   "main": "src/index.js",
   "scripts": {
