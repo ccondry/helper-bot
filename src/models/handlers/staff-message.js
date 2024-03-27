@@ -60,18 +60,7 @@ module.exports = async function (user, event, rooms) {
   // set markdown data
   try {
     // remove spark-mention tags
-    const mentionRegex = /<spark-mention.*<\/spark-mention>/g
-    data.markdown = event.data.html.replace(mentionRegex, '')
-
-    // replace email addresses with people mentions
-    const emailRegex = /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/g
-    data.markdown = data.markdown.replace(emailRegex, '<@personEmail:$&>')
-
-    // trim any whitespace at the beginning or end of the message
-    data.markdown = data.markdown.trim()
-
-    // remove space at the beginning of markdown inside the <p> tag
-    data.markdown = data.markdown.replace(/<p> /, '<p>')
+    data.markdown = parseMarkdown(event)
   } catch (e) {
     // continue
   }
@@ -227,4 +216,29 @@ module.exports = async function (user, event, rooms) {
       text: `failed to send staff message to user room: ${e.message}`
     }).catch(e2 => console.log('Failed to send error message to staff room:', e2.message))
   }
+}
+
+function parseMarkdown (event) {
+  let markdown
+  try {
+    const mentionRegex = /<spark-mention.*<\/spark-mention>/g
+    markdown = event.data.html.replace(mentionRegex, '')
+
+    // replace all user eamil links HTML with just the email address
+    const emailRegex1 = /<a href="mailto:(.*?@.*?)" alt="mailto:(.*?@.*?)" onclick="return sparkBase\.clickEventHandler\(event\);">(.*?@.*?)<\/a>/
+    markdown = markdown.replace(emailRegex1, '$1')
+
+    // replace email addresses with people mentions
+    const emailRegex2 = /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/g
+    markdown = markdown.replace(emailRegex2, '<@personEmail:$&>')
+
+    // trim any whitespace at the beginning or end of the message
+    markdown = markdown.trim()
+
+    // remove space at the beginning of markdown inside the <p> tag
+    markdown = markdown.replace(/<p> /, '<p>')
+  } catch (e) {
+    // continue
+  }
+  return markdown
 }
